@@ -1,0 +1,4 @@
+*** WooCommerce Viva Wallet Payment Gateway ***
+
+2016.02.15 - version 1.0.0
+ * Initial Release.
