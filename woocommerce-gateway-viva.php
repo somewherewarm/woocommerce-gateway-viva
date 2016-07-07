@@ -425,14 +425,60 @@ function wc_viva_gateway_init() {
 		}
 
 		/**
-		 * Double-check IPN validity by making a Viva API call.
+		 * Validate that the received IPN mesage was genuine by making a Viva API call to double check the transaction ID and status.
 		 *
 		 * @since  1.0.0
 		 * @param  array $message
 		 */
 		private function validate_ipn( $message ) {
 
-			return true;
+			$valid                     = false;
+			$event_data                = (array) $message[ 'EventData' ];
+			$transaction_id            = isset( $event_data[ 'TransactionId' ] ) ? $event_data[ 'TransactionId' ] : false;
+			$ipn_transaction_status_id = isset( $event_data[ 'StatusId' ] ) ?  $event_data[ 'StatusId' ] : false;
+
+			if ( ! $transaction_id || ! $ipn_transaction_status_id ) {
+				return $valid;
+			}
+
+			if ( $this->debug_log() ) {
+				$this->log( "Validating Viva IPN - checking status of transaction ID: " . $transaction_id . "..." );
+			}
+
+			$args = array(
+				'headers' => array(
+					'Authorization' => 'Basic ' . base64_encode( $this->merchant_id . ':' . $this->api_key )
+				),
+			);
+
+			$response = wp_safe_remote_get( $this->endpoint . '/api/transactions/' . $transaction_id, $args );
+
+			if ( $this->debug_log() ) {
+				$this->log( "Viva response: " . print_r( $response, true ) );
+			}
+
+			$data       = (array) json_decode( wp_remote_retrieve_body( $response ) );
+			$error_code = $data[ 'ErrorCode' ];
+
+			if ( isset( $data[ 'ErrorCode' ] ) && 0 === absint( $data[ 'ErrorCode' ] ) && isset( $data[ 'Transactions' ] ) ) {
+
+				$transaction_data      = (array) current( $data[ 'Transactions' ] );
+				$transaction_status_id = isset( $transaction_data[ 'StatusId' ] ) ? $transaction_data[ 'StatusId' ] : false;
+
+				if ( $ipn_transaction_status_id === $transaction_status_id ) {
+					$valid = true;
+				}
+			}
+
+			if ( $this->debug_log() ) {
+				if ( $valid ) {
+					$this->log( "Viva IPN is valid. Transaction existence and status confirmed." );
+				} else {
+					$this->log( sprintf( "Viva IPN Validation failed (transaction status ID: %s - expected %s ).", $transaction_status_id ? $transaction_status_id : 'unknown', $ipn_transaction_status_id ) );
+				}
+			}
+
+			return $valid;
 		}
 
 		/**
