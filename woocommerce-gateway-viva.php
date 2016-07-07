@@ -19,35 +19,42 @@ add_action( 'plugins_loaded', 'wc_viva_gateway_init', 0 );
 
 function wc_viva_gateway_init() {
 
+	// Sanity check.
 	if ( ! class_exists( 'WC_Payment_Gateway' ) ) {
 		return;
 	}
 
 	load_plugin_textdomain( 'woocommerce-gateway-viva', false, dirname( plugin_basename( __FILE__ ) ) . '/i18n/languages' );
 
+	/**
+	 * WC_Gateway_Viva class.
+	 */
 	class WC_Gateway_Viva extends WC_Payment_Gateway {
 
-		/** Debug mode log to file */
+		/** Debug mode log to file. */
 		const DEBUG_MODE_LOG = 'log';
 
-		/** Debug mode disabled */
+		/** Debug mode disabled. */
 		const DEBUG_MODE_OFF = 'off';
 
-		/** @var string transction created message code */
+		/** @var string transction created message code. */
 		const IPN_CODE_TRANSACTION_CREATED = 1796;
 
-		/** @var string transction reversed message code */
+		/** @var string transction reversed message code. */
 		const IPN_CODE_TRANSACTION_REVERSED = 1797;
 
-		/** @var string created transaction types */
+		/** @var string created transaction types. */
 		private $ipn_transaction_types;
 
-		/** @var string configuration option: 4 options for debug mode - off, checkout, log, both */
+		/** @var string configuration option: 4 options for debug mode - off, checkout, log, both. */
 		private $debug_mode;
 
-		/** @var WC_Logger instance */
+		/** @var WC_Logger instance. */
 		private $logger;
 
+		/**
+		 * __construct method.
+		 */
 		function __construct() {
 
 			$this->method_title = 'Viva Wallet';
@@ -88,14 +95,20 @@ function wc_viva_gateway_init() {
 				),
 			);
 
+			// Add WC api 'wc_gateway_viva' request endpoint handler.
 			add_action( 'woocommerce_api_wc_gateway_viva', array( $this, 'wc_api_request_handler' ) );
+			// Add failure notice when redirected to the checkout->pay page after an unsuccessful attempt.
 			add_action( 'before_woocommerce_pay', array( $this, 'checkout_order_pay_notice' ) );
 
+			// Process admin gateway options.
 			if ( is_admin() ) {
 				add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
 			}
 		}
 
+		/**
+		 * Gateway settings form fields.
+		 */
 		function init_form_fields() {
 			$this->form_fields 	= array(
 				'enabled' => array(
@@ -563,11 +576,12 @@ function wc_viva_gateway_init() {
 		}
 	}
 
-	// Add Gateway to WooCommerce.
+	// Add Gateway to WC.
 	function wc_viva_add_gateway( $methods ) {
 		$methods[] = 'WC_Gateway_Viva';
 		return $methods;
 	}
 
+	// Make the Viva Wallet gateway available to WC.
 	add_filter( 'woocommerce_payment_gateways', 'wc_viva_add_gateway' );
 }
