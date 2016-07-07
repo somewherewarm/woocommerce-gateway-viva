@@ -243,15 +243,14 @@ function wc_viva_gateway_init() {
 		 * @return string
 		 */
 		private function get_raw_data() {
-			// $HTTP_RAW_POST_DATA is deprecated on PHP 5.6
+			// $HTTP_RAW_POST_DATA is deprecated on PHP 5.6.
 			if ( function_exists( 'phpversion' ) && version_compare( phpversion(), '5.6', '>=' ) ) {
 				return file_get_contents( 'php://input' );
 			}
 
 			global $HTTP_RAW_POST_DATA;
 
-			// A bug in PHP < 5.2.2 makes $HTTP_RAW_POST_DATA not set by default,
-			// but we can do it ourself.
+			// A bug in PHP < 5.2.2 makes $HTTP_RAW_POST_DATA not set by default.
 			if ( ! isset( $HTTP_RAW_POST_DATA ) ) {
 				$HTTP_RAW_POST_DATA = file_get_contents( 'php://input' );
 			}
@@ -314,7 +313,7 @@ function wc_viva_gateway_init() {
 					$redirect = esc_url( add_query_arg( array( 'result' => 'failure', 'failed_viva_order_code' => $order_code ), $order->get_checkout_payment_url() ) );
 				} else {
 					if ( $this->debug_log() ) {
-						$this->log( "Error: Viva payment for an unknown order failed. Possible fraudulent attempt. Request details: " . print_r( $_GET, true ) );
+						$this->log( "Error: Viva payment for an unknown order failed. The order may have been deleted, or this could indicate a possible fraudulent attempt. Request details: " . print_r( $_GET, true ) );
 					}
 					$redirect = wc_get_checkout_url();
 				}
@@ -493,10 +492,11 @@ function wc_viva_gateway_init() {
 
 			// Find the order from the saved viva order code.
 			$args = array(
-				'post_type'            => 'shop_order',
-				'post_status'          => wc_get_order_statuses(),
-				'fields'               => 'ids',
-				'meta_query'           => array( array(
+				'post_type'   => 'shop_order',
+				'post_status' => wc_get_order_statuses(),
+				'fields'      => 'ids',
+				'meta_query'  => array(
+					array(
 						'key'     => '_viva_order_code',
 						'value'   => $code,
 						'compare' => '='
