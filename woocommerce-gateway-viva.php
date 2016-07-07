@@ -55,7 +55,7 @@ function wc_viva_gateway_init() {
 		/**
 		 * __construct method.
 		 */
-		function __construct() {
+		public function __construct() {
 
 			$this->method_title = 'Viva Wallet';
 			$this->id           = 'viva';
@@ -95,21 +95,25 @@ function wc_viva_gateway_init() {
 				),
 			);
 
-			// Add WC api 'wc_gateway_viva' request endpoint handler.
-			add_action( 'woocommerce_api_wc_gateway_viva', array( $this, 'wc_api_request_handler' ) );
-			// Add failure notice when redirected to the checkout->pay page after an unsuccessful attempt.
-			add_action( 'before_woocommerce_pay', array( $this, 'checkout_order_pay_notice' ) );
-
 			// Process admin gateway options.
 			if ( is_admin() ) {
 				add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
 			}
+
+			// Add WC api 'wc_gateway_viva' request endpoint handler.
+			add_action( 'woocommerce_api_wc_gateway_viva', array( $this, 'wc_api_request_handler' ) );
+
+			// Add failure notice when redirected to the checkout->pay page after an unsuccessful attempt.
+			add_action( 'before_woocommerce_pay', array( $this, 'checkout_order_pay_notice' ) );
+
+			// Ensure checkout currency is EUR - Viva does not support other currencies.
+			add_action( 'woocommerce_after_checkout_validation', array( $this, 'check_order_currency' ) );
 		}
 
 		/**
 		 * Gateway settings form fields.
 		 */
-		function init_form_fields() {
+		public function init_form_fields() {
 			$this->form_fields 	= array(
 				'enabled' => array(
 					'title'       => __( 'Enable Viva Wallet', 'woocommerce-gateway-viva' ),
@@ -179,9 +183,50 @@ function wc_viva_gateway_init() {
 		 *
 		 * @return string
 		 */
-		function payment_fields() {
+		public function payment_fields() {
 			if ( $this->description ) {
 				echo wpautop( $this->description );
+			}
+		}
+
+		/**
+		 * Override 'is_available' to account for the EUR currency limitation of Viva.
+		 * Use the 'wc_viva_gateway_non_eur_currency_disable' filter if you wish to show the gateway when checking out with other currencies (return false).
+		 * The order will still not go through - @see check_order_currency.
+		 *
+		 * @return boolean
+		 */
+		public function is_available() {
+
+			$is_available = parent::is_available();
+
+			if ( $is_available && apply_filters( 'wc_viva_gateway_non_eur_currency_disable', true ) ) {
+				$currency = get_woocommerce_currency();
+				if ( 'EUR' !== $currency ) {
+					$is_available = false;
+				}
+			}
+
+			return $is_available;
+		}
+
+		/**
+		 * If the gateway is not disabled for non-EUR currencies, then at least validate the currency during checkout:
+		 * If the order currency is not EUR, show a notice and prompt user to select a different gateway.
+		 * Do this before creating any orders.
+		 *
+		 * @param  array $posted_data
+		 * @return void
+		 */
+		public function check_order_currency( $posted_data ) {
+
+			$chosen_gateway = WC()->session->get( 'chosen_payment_method' );
+
+			if ( 'viva' === $chosen_gateway ) {
+				$currency = get_woocommerce_currency();
+				if ( 'EUR' !== $currency ) {
+					wc_add_notice( sprintf( __( 'Payment with %1$s is only possible in <strong>Euros (%2$s)</strong>.', 'woocommerce-gateway-viva' ), $this->title, get_woocommerce_currency_symbol( 'EUR' ) ), 'error' );
+				}
 			}
 		}
 
@@ -194,7 +239,7 @@ function wc_viva_gateway_init() {
 		 * @param  string $order_id
 		 * @return array
 		 */
-		function process_payment( $order_id ) {
+		public function process_payment( $order_id ) {
 
 			$order     = wc_get_order( $order_id );
 			$locale    = substr( get_locale(), 0, 2 );
