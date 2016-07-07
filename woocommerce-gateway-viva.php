@@ -184,16 +184,17 @@ function wc_viva_gateway_init() {
 		function process_payment( $order_id ) {
 
 			$order     = wc_get_order( $order_id );
+			$locale    = substr( get_locale(), 0, 2 );
+			$lang      = 'el' === $locale ? 'el-GR' : 'en-US';
 			$viva_args = apply_filters( 'wc_viva_gateway_process_payment_args', array(
-				'Email'           => $order->billing_email,
-				'FullName'        => $order->billing_last_name . ' ' . $order->billing_first_name,
-				'RequestLang'     => 'en-US',
-				'Phone'           => preg_replace( '/\D/', '', $order->billing_phone ),
-				'MerchantTrns'    => $order->id,
-				'CustomerTrns'    => sprintf( __( 'Order #%s', 'woocommerce-gateway-viva' ), $order->id ),
-				// Amount in cents.
-				'Amount'          => number_format( $order->get_total() * 100, 0, '.', '' ),
-				'SourceCode'      => $this->source_code,
+				'Email'        => $order->billing_email,
+				'FullName'     => $order->billing_last_name . ' ' . $order->billing_first_name,
+				'RequestLang'  => 'en-US',
+				'Phone'        => preg_replace( '/\D/', '', $order->billing_phone ),
+				'MerchantTrns' => $order->id,
+				'CustomerTrns' => sprintf( __( 'Order #%s', 'woocommerce-gateway-viva' ), $order->id ),
+				'Amount'       => number_format( $order->get_total() * 100, 0, '.', '' ), // Important: amount in cents.
+				'SourceCode'   => $this->source_code,
 			), $order, $this );
 
 			if ( $this->debug_log() ) {
@@ -201,9 +202,9 @@ function wc_viva_gateway_init() {
 			}
 
 			$args = array(
-				'body' => $viva_args,
+				'body'        => $viva_args,
 				'redirection' => 0,
-				'headers' => array(
+				'headers'     => array(
 					'Authorization' => 'Basic ' . base64_encode( $this->merchant_id . ':' . $this->api_key )
 				),
 			);
@@ -232,7 +233,7 @@ function wc_viva_gateway_init() {
 
 			return array(
 				'result'   => 'success',
-				'redirect' => add_query_arg( 'ref', $order_code, $this->endpoint . '/web/checkout' ),
+				'redirect' => esc_url_raw( add_query_arg( array( 'ref' => $order_code, 'lang' => $lang ), $this->endpoint . '/web/checkout' ) ),
 			);
 		}
 
