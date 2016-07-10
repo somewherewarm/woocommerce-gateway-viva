@@ -13,7 +13,7 @@
  * Text Domain: woocommerce-gateway-viva
  * Domain Path: /i18n/languages/
  *
- * Requires at least: 4.1
+ * Requires at least: 4.2
  * Tested up to: 4.5
  *
  * Copyright: © 2009-2016 Emmanouil Psychogyiopoulos.
@@ -52,6 +52,12 @@ if ( ! is_woocommerce_active() ) {
  */
 class WC_Viva {
 
+	/* Plugin version. */
+	const VERSION = '1.0.0';
+
+	/* Required WC version. */
+	const REQ_WC_VERSION = '2.3.0';
+
 	/**
 	 * Plugin bootstrapping.
 	 */
@@ -65,6 +71,9 @@ class WC_Viva {
 
 		// Make the Viva Wallet gateway available to WC.
 		add_filter( 'woocommerce_payment_gateways', array( __CLASS__, 'add_gateway' ) );
+
+		// Clean up.
+		register_deactivation_hook( __FILE__, array( __CLASS__, 'deactivate_plugin' ) );
 	}
 
 	/**
@@ -78,16 +87,19 @@ class WC_Viva {
 	}
 
 	/**
-	 * Make the WC_Gateway_Viva class available.
+	 * Plugin includes.
 	 */
 	public static function includes() {
 
-		// Sanity check.
-		if ( ! class_exists( 'WC_Payment_Gateway' ) ) {
-			return;
+		// Make the WC_Gateway_Viva class available.
+		if ( class_exists( 'WC_Payment_Gateway' ) ) {
+			require_once( 'includes/class-wc-gateway-viva.php' );
 		}
 
-		require_once( 'includes/class-wc-gateway-viva.php' );
+		// Admin notices.
+		if ( is_admin() ) {
+			require_once( 'includes/admin/class-wc-viva-admin-notices.php' );
+		}
 	}
 
 	/**
@@ -95,6 +107,22 @@ class WC_Viva {
 	 */
 	public static function load_translations() {
 		load_plugin_textdomain( 'woocommerce-gateway-viva', false, dirname( plugin_basename( __FILE__ ) ) . '/i18n/languages' );
+	}
+
+	/**
+	 * Plugin url.
+	 *
+	 * @return string
+	 */
+	public static function plugin_url() {
+		return untrailingslashit( plugins_url( '/', __FILE__ ) );
+	}
+
+	/**
+	 * Delete plugin options on deactivation.
+	 */
+	public static function deactivate_plugin() {
+		delete_option( 'wc_viva_notices_status' );
 	}
 }
 

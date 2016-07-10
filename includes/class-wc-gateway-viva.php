@@ -221,7 +221,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 		if ( 'viva' === $chosen_gateway ) {
 			$currency = get_woocommerce_currency();
 			if ( 'EUR' !== $currency ) {
-				wc_add_notice( sprintf( __( 'Payment with %1$s is only possible in <strong>Euros (%2$s)</strong>.', 'woocommerce-gateway-viva' ), $this->title, get_woocommerce_currency_symbol( 'EUR' ) ), 'error' );
+				wc_add_notice( sprintf( __( 'Your order could not be processed. The %1$s gateway only supports payments in <strong>Euros (%2$s)</strong>.', 'woocommerce-gateway-viva' ), $this->title, get_woocommerce_currency_symbol( 'EUR' ) ), 'error' );
 			}
 		}
 	}
