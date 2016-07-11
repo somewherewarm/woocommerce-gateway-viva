@@ -91,7 +91,7 @@ class WC_Viva_Admin_Notices {
 						$merchant_id = wc_clean( $_POST[ 'woocommerce_viva_merchant_id' ] );
 						$api_key     = wc_clean( $_POST[ 'woocommerce_viva_api_key' ] );
 
-						if ( $gateway->debug_log() ) {
+						if ( 'log' === wc_clean( $_POST[ 'woocommerce_viva_debug_mode' ] ) ) {
 							$gateway->log( "Validating Viva settings..." );
 						}
 
