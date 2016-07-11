@@ -58,6 +58,9 @@ class WC_Viva {
 	/* Required WC version. */
 	const REQ_WC_VERSION = '2.3.0';
 
+	/* Required WC version. */
+	const DOCS_URL = 'http://docs.woothemes.com/document/woocommerce-gateway-viva-wallet/';
+
 	/**
 	 * Plugin bootstrapping.
 	 */

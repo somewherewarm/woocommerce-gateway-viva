@@ -47,7 +47,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 
 		$this->method_title = 'Viva Wallet';
 		$this->id           = 'viva';
-		$this->icon         = apply_filters( 'wc_viva_gateway_logo', plugins_url( basename( dirname(__FILE__) ) . '/assets/images/viva-logo.png' ) );
+		$this->icon         = apply_filters( 'wc_viva_gateway_logo', WC_Viva::plugin_url() . '/assets/images/viva-logo.png' );
 
 		// Load form fields.
 		$this->init_form_fields();
@@ -107,6 +107,25 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 	}
 
 	/**
+	 * Show an error/message when the gateway is enabled but the merchant_id, api_key or source_code fields are empty or misconfigured.
+	 */
+	public function process_admin_options() {
+
+		if ( 1 === WC_Viva_Admin_Notices::$gateway_configuration_error_code ) {
+			$error = __( 'Viva Wallet requires a valid Merchant ID, API Key and Payment Source in order to accept payments.', 'woocommerce-gateway-viva' );
+			WC_Admin_Settings::add_error( $error );
+		} elseif ( 2 === WC_Viva_Admin_Notices::$gateway_configuration_error_code ) {
+			$error = __( 'Invalid Merchant ID or API Key.', 'woocommerce-gateway-viva' );
+			WC_Admin_Settings::add_error( $error );
+		} elseif ( 0 === WC_Viva_Admin_Notices::$gateway_configuration_error_code ) {
+			$message = __( 'Merchant ID and API Key validation successful.', 'woocommerce-gateway-viva' );
+			WC_Admin_Settings::add_message( $message );
+		}
+
+		parent::process_admin_options();
+	}
+
+	/**
 	 * Gateway settings form fields.
 	 */
 	public function init_form_fields() {
@@ -138,7 +157,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 				'default'     => ''
 			),
 			'source_code' => array(
-				'title'       => __( 'Source code', 'woocommerce-gateway-viva' ),
+				'title'       => __( 'Payment Source', 'woocommerce-gateway-viva' ),
 				'type'        => 'text',
 				'description' => __( 'The code of this Payment Source in your Viva Wallet account.', 'woocommerce-gateway-viva' ),
 				'default'     => ''
@@ -189,12 +208,15 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 	 * Override 'is_available' to account for the EUR currency limitation of Viva.
 	 * Use the 'wc_viva_gateway_non_eur_currency_disable' filter if you wish to show the gateway when checking out with other currencies (return false).
 	 * The order will still not go through - @see check_order_currency.
+	 * Also, the gateway will be unavailable if the cofiguration creds have not been validated to work.
 	 *
 	 * @return boolean
 	 */
 	public function is_available() {
 
-		$is_available = parent::is_available();
+		$is_gateway_configuration_valid = 'yes' === get_option( 'wc_viva_settings_validated', false );
+
+		$is_available = parent::is_available() && $is_gateway_configuration_valid;
 
 		if ( $is_available && apply_filters( 'wc_viva_gateway_non_eur_currency_disable', true ) ) {
 			$currency = get_woocommerce_currency();
@@ -378,6 +400,35 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 	}
 
 	/**
+	 * Request config token.
+	 *
+	 * @param  mixed $merchant_id
+	 * @param  mixed $api_key
+	 * @return string
+	 */
+	public function request_config_token( $merchant_id = false, $api_key = false ) {
+
+		$merchant_id = false === $merchant_id ? $this->merchant_id : $merchant_id;
+		$api_key     = false === $api_key ? $this->api_key : $api_key;
+
+		$args = array(
+			'headers' => array(
+				'Authorization' => 'Basic ' . base64_encode( $merchant_id . ':' . $api_key )
+			),
+		);
+
+		$response = wp_safe_remote_get( $this->endpoint . '/api/messages/config/token', $args );
+
+		if ( $this->debug_log() ) {
+			$this->log( "Viva IPN Verification Response: " . print_r( $response, true ) );
+		}
+
+		$data = wp_remote_retrieve_body( $response );
+
+		return $data;
+	}
+
+	/**
 	 * Respond to payment confirmation & IPN requests.
 	 *
 	 * @return void
@@ -388,19 +439,14 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 
 		if ( empty( $request_content ) ) {
 
-			$args = array(
-				'headers' => array(
-					'Authorization' => 'Basic ' . base64_encode( $this->merchant_id . ':' . $this->api_key )
-				),
-			);
+			$data = $this->request_config_token();
 
-			$response = wp_safe_remote_get( $this->endpoint . '/api/messages/config/token', $args );
-
-			if ( $this->debug_log() ) {
-				$this->log( "Viva IPN Verification Response: " . print_r( $response, true ) );
+			if ( $data ) {
+				$token_data = (array) json_decode( $data );
+				if ( isset( $token_data[ 'Key' ] ) ) {
+					update_option( 'wc_viva_ipn_validated', md5( $token_data[ 'Key' ] ) );
+				}
 			}
-
-			$data = wp_remote_retrieve_body( $response );
 
 			echo $data;
 			exit;
