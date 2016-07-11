@@ -1,187 +1,256 @@
-# Copyright (C) 2016 SomewhereWarm
+# Copyright (C) 2016 WooThemes
 # This file is distributed under the GNU General Public License v3.0.
 msgid ""
 msgstr ""
 "Project-Id-Version: WooCommerce Viva Wallet Gateway 1.0.0\n"
 "Report-Msgid-Bugs-To: https://support.woothemes.com/hc/en-us\n"
-"POT-Creation-Date: 2016-02-17 12:05:03+00:00\n"
+"POT-Creation-Date: 2016-07-11 03:57:14+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "PO-Revision-Date: 2016-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
-"X-Generator: grunt-wp-i18n 0.5.3\n"
+"X-Generator: grunt-wp-i18n 0.5.4\n"
 
-#: woocommerce-gateway-viva.php:75
+#: includes/admin/class-wc-viva-admin-notices.php:168
+msgid "dimiss this message"
+msgstr ""
+
+#: includes/admin/class-wc-viva-admin-notices.php:169
+msgid ""
+"The <strong>WooCommerce Viva Wallet</strong> gateway only supports payments "
+"in <strong>Euros (%1$s)</strong>. The gateway will be unavailable when "
+"checking out in any other currency. If you are using a WooCommerce plugin "
+"that enables checkout in multiple currencies, you may %2$s."
+msgstr ""
+
+#: includes/admin/class-wc-viva-admin-notices.php:183
+msgid ""
+"The <strong>WooCommerce Viva Wallet</strong> gateway requires a valid "
+"<strong>Merchant ID</strong>, <strong>API Key</strong> and <strong>Payment "
+"Source</strong> in order to process payments sucessfully. Please review "
+"your Viva Wallet <a href=\"%s\">gateway settings</a>. For instructions, "
+"please refer to the Viva Wallet <a href=\"%s\">documentation</a>."
+msgstr ""
+
+#: includes/admin/class-wc-viva-admin-notices.php:196
+msgid ""
+"Please ensure that Viva Wallet <strong>Webhooks</strong> have been set up "
+"correctly by logging into your Viva merchant account and navigating to "
+"<strong>Settings > API Access > Webhooks</strong>. Webhooks must be "
+"configured to allow your store to receive notifications in response to "
+"various events, such as completed order payments and refunds. For "
+"instructions, please refer to the Viva Wallet <a "
+"href=\"%s\">documentation</a>."
+msgstr ""
+
+#: includes/admin/class-wc-viva-admin-notices.php:208
+msgid "Action failed. Please refresh the page and retry."
+msgstr ""
+
+#: includes/admin/class-wc-viva-admin-notices.php:212
+msgid "Cheatin&#8217; huh?"
+msgstr ""
+
+#: includes/class-wc-gateway-viva.php:70
 msgid "Capture from Preauth"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:76
+#: includes/class-wc-gateway-viva.php:71
 msgid "Charge Card"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:77
+#: includes/class-wc-gateway-viva.php:72
 msgid "Charge Card w. Installments"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:78
+#: includes/class-wc-gateway-viva.php:73
 msgid "Wallet Charge"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:79
+#: includes/class-wc-gateway-viva.php:74
 msgid "Dias Payment"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:80
+#: includes/class-wc-gateway-viva.php:75
 msgid "Cash Payment"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:83
+#: includes/class-wc-gateway-viva.php:78
 msgid "Refund Card Transaction"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:84
+#: includes/class-wc-gateway-viva.php:79
 msgid "Void Card Transaction"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:85
+#: includes/class-wc-gateway-viva.php:80
 msgid "Wallet Refund Transaction"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:86
+#: includes/class-wc-gateway-viva.php:81
 msgid "Refund Card Transaction from Claim"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:87
+#: includes/class-wc-gateway-viva.php:82
 msgid "Void Cash"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:102
+#: includes/class-wc-gateway-viva.php:115
+msgid ""
+"Viva Wallet requires a valid Merchant ID, API Key and Payment Source in "
+"order to accept payments."
+msgstr ""
+
+#: includes/class-wc-gateway-viva.php:118
+msgid "Invalid Merchant ID or API Key."
+msgstr ""
+
+#: includes/class-wc-gateway-viva.php:121
+msgid "Merchant ID and API Key validation successful."
+msgstr ""
+
+#: includes/class-wc-gateway-viva.php:140
+msgid "<a href=\"%1$s\">log file</a> at %2$s"
+msgstr ""
+
+#: includes/class-wc-gateway-viva.php:140
+msgid "log file"
+msgstr ""
+
+#: includes/class-wc-gateway-viva.php:141
+msgid "Save detailed error messages and API requests/responses to a %s."
+msgstr ""
+
+#: includes/class-wc-gateway-viva.php:145
 msgid "Enable Viva Wallet"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:103
+#: includes/class-wc-gateway-viva.php:146
 msgid "Turn on Viva Wallet for WooCommerce"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:109
+#: includes/class-wc-gateway-viva.php:152
 msgid "Use Sandbox"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:110
+#: includes/class-wc-gateway-viva.php:153
 msgid "Use the sandbox for development"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:116
+#: includes/class-wc-gateway-viva.php:159
 msgid "Viva Wallet Merchant ID"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:118
+#: includes/class-wc-gateway-viva.php:161
 msgid "Your Viva Wallet Merchant ID."
 msgstr ""
 
-#: woocommerce-gateway-viva.php:122
+#: includes/class-wc-gateway-viva.php:165
 msgid "Viva Wallet API Key"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:124
+#: includes/class-wc-gateway-viva.php:167
 msgid "Your Viva Wallet API Key."
 msgstr ""
 
-#: woocommerce-gateway-viva.php:128
-msgid "Source code"
+#: includes/class-wc-gateway-viva.php:171
+msgid "Payment Source"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:130
+#: includes/class-wc-gateway-viva.php:173
 msgid "The code of this Payment Source in your Viva Wallet account."
 msgstr ""
 
-#: woocommerce-gateway-viva.php:134
+#: includes/class-wc-gateway-viva.php:177
 msgid "Title"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:136
+#: includes/class-wc-gateway-viva.php:179
 msgid "Payment method title that the customer will see on your website."
 msgstr ""
 
-#: woocommerce-gateway-viva.php:137
+#: includes/class-wc-gateway-viva.php:180
 msgid "Viva Wallet"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:140
+#: includes/class-wc-gateway-viva.php:183
 msgid "Description"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:142
+#: includes/class-wc-gateway-viva.php:185
 msgid "Payment method description that the customer will see on your website."
 msgstr ""
 
-#: woocommerce-gateway-viva.php:146
+#: includes/class-wc-gateway-viva.php:189
 msgid "Instructions"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:148
+#: includes/class-wc-gateway-viva.php:191
 msgid "Instructions visitors will see on the receipt page to make payment."
 msgstr ""
 
-#: woocommerce-gateway-viva.php:152
+#: includes/class-wc-gateway-viva.php:195
 msgid "Debug Mode"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:154
-msgid "Save detailed error messages and API requests/responses to the debug log: %s"
-msgstr ""
-
-#: woocommerce-gateway-viva.php:157
+#: includes/class-wc-gateway-viva.php:200
 msgid "Off"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:158
+#: includes/class-wc-gateway-viva.php:201
 msgid "On"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:193
+#: includes/class-wc-gateway-viva.php:257
+msgid ""
+"Your order could not be processed. The %1$s gateway only supports payments "
+"in <strong>Euros (%2$s)</strong>."
+msgstr ""
+
+#: includes/class-wc-gateway-viva.php:282
 msgid "Order #%s"
 msgstr ""
 
-#: woocommerce-gateway-viva.php:224 woocommerce-gateway-viva.php:474
+#: includes/class-wc-gateway-viva.php:312
+#: includes/class-wc-gateway-viva.php:632
 msgid ""
 "Payment with %1$s failed. Please try again later, or use a different "
 "payment method."
 msgstr ""
 
-#: woocommerce-gateway-viva.php:386
+#: includes/class-wc-gateway-viva.php:497
 msgid ""
 "Viva Wallet payment notification received via IPN (transaction type: "
 "&quot;%1$s&quot;, paid by: %2$s, transaction ID: %3$s)."
 msgstr ""
 
-#: woocommerce-gateway-viva.php:390
+#: includes/class-wc-gateway-viva.php:501
 msgid ""
 "Viva Wallet payment notification received via IPN. Payment code (%1$s) "
 "invalid (paid by: %2$s, transaction ID: %3$s)."
 msgstr ""
 
-#: woocommerce-gateway-viva.php:393
+#: includes/class-wc-gateway-viva.php:504
 msgid ""
 "Invalid Viva Wallet payment notification received via IPN - possible "
 "fraudulent order attempt (transaction ID: %s)."
 msgstr ""
 
-#: woocommerce-gateway-viva.php:415
+#: includes/class-wc-gateway-viva.php:526
 msgid ""
 "Viva Wallet refund notification received via IPN (transaction type: "
 "&quot;%1$s&quot;, transaction ID: %2$s)."
 msgstr ""
 
-#: woocommerce-gateway-viva.php:419
+#: includes/class-wc-gateway-viva.php:530
 msgid ""
 "Viva Wallet partial refund notification received via IPN (amount: %1$s, "
 "transaction type: %2$s, transaction ID: %3$s)."
 msgstr ""
 
-#: woocommerce-gateway-viva.php:422
+#: includes/class-wc-gateway-viva.php:533
 msgid ""
 "Invalid Viva Wallet refund notification received via IPN - possible "
 "fraudulent attempt (transaction ID: %s)."
@@ -192,7 +261,7 @@ msgid "WooCommerce Viva Wallet Gateway"
 msgstr ""
 
 #. Plugin URI of the plugin/theme
-msgid "http://www.woothemes.com/"
+msgid "http://www.woocommerce.com/products/woocommerce-gateway-viva-wallet/"
 msgstr ""
 
 #. Description of the plugin/theme
@@ -200,9 +269,9 @@ msgid "Adds the Viva Wallet payment gateway to your WooCommerce website."
 msgstr ""
 
 #. Author of the plugin/theme
-msgid "SomewhereWarm"
+msgid "WooThemes"
 msgstr ""
 
 #. Author URI of the plugin/theme
-msgid "http://www.somewherewarm.net/"
+msgid "http://woocommerce.com/"
 msgstr ""
