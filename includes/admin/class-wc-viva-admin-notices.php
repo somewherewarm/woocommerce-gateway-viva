@@ -68,55 +68,51 @@ class WC_Viva_Admin_Notices {
 	 */
 	private static function check_gateway_settings() {
 
-		// When viewing the Viva Wallet gateway settings...
-		if ( isset( $_GET[ 'page' ] ) && $_GET[ 'page' ] === 'wc-settings' && isset( $_GET[ 'tab' ] ) && $_GET[ 'tab' ] === 'checkout' && isset( $_GET[ 'section' ] ) && $_GET[ 'section' ] === 'viva' ) {
+		// When posting data while viewing the Viva Wallet gateway settings...
+		if ( ! empty( $_POST ) && isset( $_GET[ 'page' ] ) && $_GET[ 'page' ] === 'wc-settings' && isset( $_GET[ 'tab' ] ) && $_GET[ 'tab' ] === 'checkout' && isset( $_GET[ 'section' ] ) && $_GET[ 'section' ] === 'viva' ) {
 
-			// When posting data...
-			if ( ! empty( $_POST ) ) {
+			// If the gateway is enabled...
+			if ( ! empty( $_POST[ 'woocommerce_viva_enabled' ] ) ) {
 
-				// If the gateway is enabled...
-				if ( ! empty( $_POST[ 'woocommerce_viva_enabled' ] ) ) {
+				// Error condition: creds not set.
+				if ( empty( $_POST[ 'woocommerce_viva_merchant_id' ] ) || empty( $_POST[ 'woocommerce_viva_api_key' ] ) || empty( $_POST[ 'woocommerce_viva_source_code' ] ) ) {
 
-					// Error condition: creds not set.
-					if ( empty( $_POST[ 'woocommerce_viva_merchant_id' ] ) || empty( $_POST[ 'woocommerce_viva_api_key' ] ) || empty( $_POST[ 'woocommerce_viva_source_code' ] ) ) {
+					self::$gateway_configuration_error_code = 1;
 
-						self::$gateway_configuration_error_code = 1;
+				// Otherwise, validate by issuing a token request.
+				} else {
 
-					// Otherwise, validate by issuing a token request.
-					} else {
+					$gateways = WC()->payment_gateways->payment_gateways();
+					$gateway  = $gateways[ 'viva' ];
 
-						$gateways = WC()->payment_gateways->payment_gateways();
-						$gateway  = $gateways[ 'viva' ];
+					$merchant_id = wc_clean( $_POST[ 'woocommerce_viva_merchant_id' ] );
+					$api_key     = wc_clean( $_POST[ 'woocommerce_viva_api_key' ] );
 
-						$merchant_id = wc_clean( $_POST[ 'woocommerce_viva_merchant_id' ] );
-						$api_key     = wc_clean( $_POST[ 'woocommerce_viva_api_key' ] );
-
-						if ( 'log' === wc_clean( $_POST[ 'woocommerce_viva_debug_mode' ] ) ) {
-							$gateway->log( "Validating Viva settings..." );
-						}
-
-						// Send token request with the new creds.
-						$data = (array) json_decode( $gateway->request_config_token( $merchant_id, $api_key ) );
-
-						// Error condition: creds invalid.
-						if ( ! isset( $data[ 'Key' ] ) ) {
-							self::$gateway_configuration_error_code = 2;
-						// Creds valid.
-						} else {
-							self::$gateway_configuration_error_code = 0;
-						}
+					if ( 'log' === wc_clean( $_POST[ 'woocommerce_viva_debug_mode' ] ) ) {
+						$gateway->log( "Validating Viva settings..." );
 					}
 
-					if ( self::$gateway_configuration_error_code !== 0 ) {
-						WC_Viva_Admin_Notices::$is_gateway_configuration_valid = false;
-						delete_option( 'wc_viva_settings_validated' );
-						add_action( 'admin_notices', array( __CLASS__, 'output_configuration_notice' ) );
+					// Send token request with the new creds.
+					$data = (array) json_decode( $gateway->request_config_token( $merchant_id, $api_key ) );
+
+					// Error condition: creds invalid.
+					if ( ! isset( $data[ 'Key' ] ) ) {
+						self::$gateway_configuration_error_code = 2;
+					// Creds valid.
 					} else {
-						WC_Viva_Admin_Notices::$is_gateway_configuration_valid = true;
-						update_option( 'wc_viva_settings_validated', 'yes' );
-						// Show notice if the gateway is enabled and configured but IPN functionality has not been validated in the Viva Webhooks settings.
-						self::check_gateway_ipn_validated( $data[ 'Key' ] );
+						self::$gateway_configuration_error_code = 0;
 					}
+				}
+
+				if ( self::$gateway_configuration_error_code !== 0 ) {
+					WC_Viva_Admin_Notices::$is_gateway_configuration_valid = false;
+					delete_option( 'wc_viva_settings_validated' );
+					add_action( 'admin_notices', array( __CLASS__, 'output_configuration_notice' ) );
+				} else {
+					WC_Viva_Admin_Notices::$is_gateway_configuration_valid = true;
+					update_option( 'wc_viva_settings_validated', 'yes' );
+					// Show notice if the gateway is enabled and configured but IPN functionality has not been validated in the Viva Webhooks settings.
+					self::check_gateway_ipn_validated( $data[ 'Key' ] );
 				}
 			}
 
