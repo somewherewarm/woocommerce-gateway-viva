@@ -313,7 +313,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 		$order_code = $data[ 'OrderCode' ];
 
 		// Save the order code for reference.
-		if ( WCS_Viva_Core_Compatibility::is_wc_version_gte( '2.7' ) ) {
+		if ( WC_Viva_Core_Compatibility::is_wc_version_gte( '2.7' ) ) {
 			$order->add_meta_data( '_viva_order_code', $order_code, true );
 			$order->save();
 		} else {
@@ -669,7 +669,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 			$log_id = 'wc_' . $this->get_id();
 		}
 
-		WCS_Viva_Core_Compatibility::log( $message, $level, $log_id )
+		WC_Viva_Core_Compatibility::log( $message, $level, $log_id )
 	}
 }
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * WCS_Viva_Core_Compatibility class
+ * WC_Viva_Core_Compatibility class
  *
  * @author   SomewhereWarm <info@somewherewarm.gr>
  * @package  WooCommerce Viva Wallet Payment Gateway
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @class    WCS_ATT_Core_Compatibility
  * @version  1.0.0
  */
-class WCS_Viva_Core_Compatibility {
+class WC_Viva_Core_Compatibility {
 
 	/**
 	 * Cache 'gte' comparison results.
