@@ -27,11 +27,11 @@ If you:
 
 * need help [setting up](#configuration) the gateway,
 * have a customization/integration requirement, or
-* want to see a feature added, e.g. support for payment tokens & recurring payments,
+* want to see a feature added, e.g. support for **tokens** or **recurring payments**,
 
 ...then we'd love to hear from you!
 
-Please understand that our time is as limited (and precious) as yours. If you need something that requires some of our time, it's not going to be free.
+Please understand that our time is as limited (and precious) as yours. If you need something that requires some of our time, it's probably not going to be free.
 
 
 ### Installation
@@ -75,7 +75,6 @@ To accept payments from your WooCommerce website, a Viva Wallet **Payment Source
 8. Fill in the **Merchant ID**, **API Key** and **Payment Source** fields.
 9. Click **Save**.
 10. A **Merchant ID and API Key validation successful** message should be displayed -- if not, go back to Step 8 and check that all details have been entered correctly.
-
 
 #### 3. Set Up Viva Wallet Webhooks
 
