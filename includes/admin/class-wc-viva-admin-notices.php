@@ -104,12 +104,14 @@ class WC_Viva_Admin_Notices {
 					}
 				}
 
+				delete_option( 'wc_viva_ipn_validated' );
+
 				if ( self::$gateway_configuration_error_code !== 0 ) {
-					WC_Viva_Admin_Notices::$is_gateway_configuration_valid = false;
+					self::$is_gateway_configuration_valid = false;
 					delete_option( 'wc_viva_settings_validated' );
 					add_action( 'admin_notices', array( __CLASS__, 'output_configuration_notice' ) );
 				} else {
-					WC_Viva_Admin_Notices::$is_gateway_configuration_valid = true;
+					self::$is_gateway_configuration_valid = true;
 					update_option( 'wc_viva_settings_validated', 'yes' );
 					// Show notice if the gateway is enabled and configured but IPN functionality has not been validated in the Viva Webhooks settings.
 					self::check_gateway_ipn_validated( $data[ 'Key' ] );
@@ -121,6 +123,8 @@ class WC_Viva_Admin_Notices {
 			if ( self::is_gateway_enabled() ) {
 				if ( ! self::$is_gateway_configuration_valid ) {
 					add_action( 'admin_notices', array( __CLASS__, 'output_configuration_notice' ) );
+				} else {
+					self::check_gateway_ipn_validated( $data[ 'Key' ] );
 				}
 			}
 		}
