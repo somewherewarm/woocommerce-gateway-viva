@@ -13,7 +13,30 @@ module.exports = function( grunt ) {
 		// JavaScript linting with JSHint.
 		jshint: {
 			options: {
-				jshintrc: '.jshintrc'
+				'force': true,
+				'boss': true,
+				'curly': true,
+				'eqeqeq': false,
+				'eqnull': true,
+				'es3': false,
+				'expr': false,
+				'immed': true,
+				'noarg': true,
+				'onevar': true,
+				'quotmark': 'single',
+				'trailing': true,
+				'undef': true,
+				'unused': true,
+				'sub': false,
+				'browser': true,
+				'maxerr': 1000,
+				globals: {
+					'jQuery': false,
+					'$': false,
+					'woocommerce_admin_meta_boxes': true,
+					'woocommerce_writepanel_params': false,
+					'wc_enhanced_select_params': false
+				}
 			},
 			all: [
 				'Gruntfile.js',
@@ -57,8 +80,7 @@ module.exports = function( grunt ) {
 				type: 'wp-plugin',
 				domainPath: 'i18n/languages',
 				potHeaders: {
-					'report-msgid-bugs-to': 'https://support.woothemes.com/hc/en-us',
-					'language-team': 'LANGUAGE <EMAIL@ADDRESS>'
+					'report-msgid-bugs-to': 'https://github.com/somewherewarm/woocommerce-gateway-viva',
 				}
 			},
 			go: {
@@ -113,17 +135,13 @@ module.exports = function( grunt ) {
 	grunt.loadNpmTasks( 'grunt-checktextdomain' );
 
 	// Register tasks
-	grunt.registerTask( 'default', [
+	grunt.registerTask( 'dev', [
 		'checktextdomain',
 		'uglify'
-	]);
+	] );
 
-	grunt.registerTask( 'dev', [
-		'default',
+	grunt.registerTask( 'default', [
+		'dev',
 		'makepot'
-	]);
-
-	grunt.registerTask( 'domain', [
-		'checktextdomain'
-	]);
+	] );
 };
