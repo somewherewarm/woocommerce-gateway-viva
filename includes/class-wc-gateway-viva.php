@@ -130,11 +130,11 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 		$log_file_exists = false;
 
 		if ( is_admin() && isset( $_GET[ 'page' ] ) && $_GET[ 'page' ] === 'wc-settings' && isset( $_GET[ 'tab' ] ) && $_GET[ 'tab' ] === 'checkout' && isset( $_GET[ 'section' ] ) && $_GET[ 'section' ] === 'viva' ) {
-			$log_file_name   = $this->get_id() . '-' . sanitize_file_name( wp_hash( $this->get_id() ) ) . '.log';
+			$log_file_name   = $this->get_log_file_name() . '-' . sanitize_file_name( wp_hash( $this->get_log_file_name() ) ) . '.log';
 			$log_file_exists = file_exists( WC_LOG_DIR . '/' . $log_file_name );
 		}
 
-		$debug_mode_file_description = $log_file_exists ? sprintf( __( '<a href="%1$s">log file</a> at %2$s', 'woocommerce-gateway-viva' ), esc_url( admin_url( 'admin.php?page=wc-status&tab=logs&log_file=' . sanitize_title( $log_file_name ) ) ), '<strong class="nobr">' . wc_get_log_file_path( $this->get_id() ) . '</strong>' ) : __( 'log file', 'woocommerce-gateway-viva' );
+		$debug_mode_file_description = $log_file_exists ? sprintf( __( '<a href="%1$s">log file</a> at %2$s', 'woocommerce-gateway-viva' ), esc_url( admin_url( 'admin.php?page=wc-status&tab=logs&log_file=' . sanitize_title( $log_file_name ) ) ), '<strong class="nobr">' . wc_get_log_file_path( $this->get_log_file_name() ) . '</strong>' ) : __( 'log file', 'woocommerce-gateway-viva' );
 		$debug_mode_description      = sprintf( __( 'Save detailed error messages and API requests/responses to a %s.', 'woocommerce-gateway-viva' ), $debug_mode_file_description );
 
 		$this->form_fields 	= array(
@@ -657,14 +657,25 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 	}
 
 	/**
-	 * Saves errors or messages to WooCommerce Log (woocommerce/logs/plugin-id-xxx.txt).
+	 * Saves errors or messages to a log.
 	 *
 	 * @since 1.0.0
 	 * @param string $message
 	 * @param string $level
 	 */
 	public function log( $message, $level = 'info' ) {
-		WC_Viva_Core_Compatibility::log( $message, $level, 'wc_' . $this->get_id() );
+		WC_Viva_Core_Compatibility::log( $message, $level, $this->get_log_file_name() );
+	}
+
+	/**
+	 * Returns the log file name prefix.
+	 *
+	 * @since 1.0.0
+	 * @param string $message
+	 * @param string $level
+	 */
+	private function get_log_file_name() {
+		return 'wc_' . $this->get_id();
 	}
 }
 
