@@ -96,4 +96,39 @@ class WC_Viva_Core_Compatibility {
 			$logger->add( $context, $message );
 		}
 	}
+
+	/**
+	 * Back-compat wrapper for 'get_id'.
+	 *
+	 * @since  1.0.0
+	 *
+	 * @param  WC_Order  $order
+	 * @return mixed
+	 */
+	public static function get_order_id( $order ) {
+		if ( self::is_wc_version_gte( '2.7' ) ) {
+			return $order->get_id();
+		} else {
+			return absint( $order->id );
+		}
+	}
+
+	/**
+	 * Back-compat wrapper for order object prop access.
+	 *
+	 * @since  1.0.0
+	 *
+	 * @param  WC_Order  $order
+	 * @param  string    $name
+	 * @param  string    $context
+	 * @return mixed
+	 */
+	public static function get_order_prop( $order, $name, $context = 'edit' ) {
+		if ( self::is_wc_version_gte( '2.7' ) ) {
+			$fn_name = 'get_' . $name;
+			return is_callable( array( $order, $fn_name ) ) ? $order->$fn_name( $context ) : '';
+		} else {
+			return $order->$name;
+		}
+	}
 }

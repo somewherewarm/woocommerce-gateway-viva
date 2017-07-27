@@ -267,16 +267,22 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 	 */
 	public function process_payment( $order_id ) {
 
-		$order     = wc_get_order( $order_id );
-		$locale    = substr( get_locale(), 0, 2 );
-		$lang      = 'el' === $locale ? 'el-GR' : 'en-US';
-		$viva_args = apply_filters( 'wc_viva_gateway_process_payment_args', array(
-			'Email'        => $order->billing_email,
-			'FullName'     => $order->billing_last_name . ' ' . $order->billing_first_name,
+		$order      = wc_get_order( $order_id );
+		$locale     = substr( get_locale(), 0, 2 );
+		$lang       = 'el' === $locale ? 'el-GR' : 'en-US';
+
+		$email      = WC_Viva_Core_Compatibility::get_order_prop( $order, 'billing_email' );
+		$last_name  = WC_Viva_Core_Compatibility::get_order_prop( $order, 'billing_first_name' );
+		$first_name = WC_Viva_Core_Compatibility::get_order_prop( $order, 'billing_last_name' );
+		$phone      = WC_Viva_Core_Compatibility::get_order_prop( $order, 'billing_phone' );
+
+		$viva_args  = apply_filters( 'wc_viva_gateway_process_payment_args', array(
+			'Email'        => $email,
+			'FullName'     => $last_name . ' ' . $first_name,
 			'RequestLang'  => 'en-US',
-			'Phone'        => preg_replace( '/\D/', '', $order->billing_phone ),
-			'MerchantTrns' => $order->id,
-			'CustomerTrns' => sprintf( __( 'Order #%s', 'woocommerce-gateway-viva' ), $order->id ),
+			'Phone'        => preg_replace( '/\D/', '', $phone ),
+			'MerchantTrns' => $order_id,
+			'CustomerTrns' => sprintf( __( 'Order #%s', 'woocommerce-gateway-viva' ), $order_id ),
 			'Amount'       => number_format( $order->get_total() * 100, 0, '.', '' ), // Important: Amount in cents.
 			'SourceCode'   => $this->source_code,
 		), $order, $this );
@@ -317,7 +323,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 			$order->add_meta_data( '_viva_order_code', $order_code, true );
 			$order->save();
 		} else {
-			update_post_meta( $order->id, '_viva_order_code', $order_code );
+			update_post_meta( $order_id, '_viva_order_code', $order_code );
 		}
 
 		return array(
@@ -382,7 +388,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 			// Sucessful payment.
 			if ( $order ) {
 				if ( $this->logging_enabled() ) {
-					$this->log( 'Processed Viva payment for order #' . $order->id . '. Waiting for IPN to complete order. Request details: ' . print_r( $_GET, true ) );
+					$this->log( 'Processed Viva payment for order #' . WC_Viva_Core_Compatibility::get_order_id( $order ) . '. Waiting for IPN to complete order. Request details: ' . print_r( $_GET, true ) );
 				}
 				$redirect = $this->get_return_url( $order );
 			} else {
@@ -397,7 +403,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 			// Failed payment.
 			if ( $order ) {
 				if ( $this->logging_enabled() ) {
-					$this->log( 'Viva payment for order #' . $order->id . ' failed. Redirecting user to checkout order. Request details: ' . print_r( $_GET, true ), 'error' );
+					$this->log( 'Viva payment for order #' . WC_Viva_Core_Compatibility::get_order_id( $order ) . ' failed. Redirecting user to checkout order. Request details: ' . print_r( $_GET, true ), 'error' );
 				}
 				$redirect = esc_url( add_query_arg( array( 'result' => 'failure', 'failed_viva_order_code' => $order_code ), $order->get_checkout_payment_url() ) );
 			} else {
