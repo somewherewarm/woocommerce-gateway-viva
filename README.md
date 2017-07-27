@@ -21,22 +21,32 @@ To accept payments using the **WooCommerce Viva Wallet** gateway, you must:
 
 To configure the Viva Wallet gateway settings, follow these steps:
 
+#### 1. Create a Payment Source
 
-#### 1. Configure Your Merchant ID, API Key and Payment Source
+To accept payments from your WooCommerce website, a Viva Wallet **Payment Source** must be linked to your store. To create a new **Payment Source** for your website:
+
+1. Log into your [Viva Wallet](https://www.vivawallet.com) business/merchant account panel.
+2. Go to **My Sales > Payment Sources**.
+3. Click **New Website/App** to create a new source.
+4. Fill in the **Domain Name** field, e.g. `mysite.gr`.
+5. Ensure that **Redirection** is selected under **Integration Method**.
+6. Enter `/?wc-api=wc_gateway_viva&result=success` in the **Success URL** field.
+7. Enter `/?wc-api=wc_gateway_viva&result=failure` in the **Failure URL** field.
+
+#### 2. Configure Your Merchant ID, API Key and Payment Source
 
 1. Log into your [Viva Wallet](https://www.vivawallet.com) business/merchant account panel.
 2. Go to **Settings > API Access > General**.
 3. Note down your **Merchant ID** and **API Key**.
 4. Go to **My Sales > Payment Sources**.
-5. Create a **New Website/App** source for your WooCommerce store by following this guide.
-6. Note down the **Code** field of your Website/App source.
+6. Note down the **Code** field of the Website/App source linked to your WooCommerce store. If you haven't done so already, [create](#1-create-a-payment-source) a **New Website/App** source for your WooCommerce store.
 7. Log into your website Dashboard and go to **WooCommerce > Settings > Checkout > Viva Wallet**.
 8. Fill in the **Merchant ID**, **API Key** and **Payment Source** fields.
 9. Click **Save**.
 10. A **Merchant ID and API Key validation successful** message should be displayed -- if not, go back to Step 8 and check that all details have been entered correctly.
 
 
-#### 2. Set Up Viva Wallet Webhooks
+#### 3. Set Up Viva Wallet Webhooks
 
 Viva Wallet can be configured to notify your store each time a specific event takes place, e.g. a sucessful transaction. To enable these notifications, you need to log into your [Viva Wallet](https://www.vivawallet.com) account and configure **Wehooks**.
 
