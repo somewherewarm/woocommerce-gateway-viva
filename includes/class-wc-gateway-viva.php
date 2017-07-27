@@ -664,12 +664,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 	 * @param string $level
 	 */
 	public function log( $message, $level = 'info' ) {
-
-		if ( is_null( $log_id ) ) {
-			$log_id = 'wc_' . $this->get_id();
-		}
-
-		WC_Viva_Core_Compatibility::log( $message, $level, $log_id );
+		WC_Viva_Core_Compatibility::log( $message, $level, 'wc_' . $this->get_id() );
 	}
 }
 
