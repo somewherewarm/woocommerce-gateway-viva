@@ -153,13 +153,13 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 				'default'     => 'no'
 			),
 			'merchant_id' => array(
-				'title'       => __( 'Viva Wallet Merchant ID', 'woocommerce-gateway-viva' ),
+				'title'       => __( 'Merchant ID', 'woocommerce-gateway-viva' ),
 				'type'        => 'text',
 				'description' => __( 'Your Viva Wallet Merchant ID.', 'woocommerce-gateway-viva' ),
 				'default'     => ''
 			),
 			'api_key' => array(
-				'title'       => __( 'Viva Wallet API Key', 'woocommerce-gateway-viva' ),
+				'title'       => __( 'API Key', 'woocommerce-gateway-viva' ),
 				'type'        => 'text',
 				'description' => __( 'Your Viva Wallet API Key.', 'woocommerce-gateway-viva' ),
 				'default'     => ''
