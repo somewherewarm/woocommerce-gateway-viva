@@ -104,8 +104,6 @@ class WC_Viva_Admin_Notices {
 					}
 				}
 
-				delete_option( 'wc_viva_ipn_validated' );
-
 				if ( self::$gateway_configuration_error_code !== 0 ) {
 					self::$is_gateway_configuration_valid = false;
 					delete_option( 'wc_viva_settings_validated' );
@@ -123,8 +121,6 @@ class WC_Viva_Admin_Notices {
 			if ( self::is_gateway_enabled() ) {
 				if ( ! self::$is_gateway_configuration_valid ) {
 					add_action( 'admin_notices', array( __CLASS__, 'output_configuration_notice' ) );
-				} else {
-					self::check_gateway_ipn_validated( $data[ 'Key' ] );
 				}
 			}
 		}
