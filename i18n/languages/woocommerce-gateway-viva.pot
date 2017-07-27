@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: WooCommerce Viva Wallet Gateway 1.0.0\n"
 "Report-Msgid-Bugs-To: "
 "https://github.com/somewherewarm/woocommerce-gateway-viva\n"
-"POT-Creation-Date: 2017-07-27 09:29:02+00:00\n"
+"POT-Creation-Date: 2017-07-27 09:55:41+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -215,43 +215,43 @@ msgid "Order #%s"
 msgstr ""
 
 #: includes/class-wc-gateway-viva.php:309
-#: includes/class-wc-gateway-viva.php:629
+#: includes/class-wc-gateway-viva.php:635
 msgid ""
 "Payment with %1$s failed. Please try again later, or use a different "
 "payment method."
 msgstr ""
 
-#: includes/class-wc-gateway-viva.php:494
+#: includes/class-wc-gateway-viva.php:499
 msgid ""
 "Viva Wallet payment notification received via IPN (transaction type: "
 "&quot;%1$s&quot;, paid by: %2$s, transaction ID: %3$s)."
 msgstr ""
 
-#: includes/class-wc-gateway-viva.php:498
+#: includes/class-wc-gateway-viva.php:503
 msgid ""
 "Viva Wallet payment notification received via IPN. Payment code (%1$s) "
 "invalid (paid by: %2$s, transaction ID: %3$s)."
 msgstr ""
 
-#: includes/class-wc-gateway-viva.php:501
+#: includes/class-wc-gateway-viva.php:506
 msgid ""
 "Invalid Viva Wallet payment notification received via IPN - possible "
 "fraudulent order attempt (transaction ID: %s)."
 msgstr ""
 
-#: includes/class-wc-gateway-viva.php:523
+#: includes/class-wc-gateway-viva.php:528
 msgid ""
 "Viva Wallet refund notification received via IPN (transaction type: "
 "&quot;%1$s&quot;, transaction ID: %2$s)."
 msgstr ""
 
-#: includes/class-wc-gateway-viva.php:527
+#: includes/class-wc-gateway-viva.php:532
 msgid ""
 "Viva Wallet partial refund notification received via IPN (amount: %1$s, "
 "transaction type: %2$s, transaction ID: %3$s)."
 msgstr ""
 
-#: includes/class-wc-gateway-viva.php:530
+#: includes/class-wc-gateway-viva.php:535
 msgid ""
 "Invalid Viva Wallet refund notification received via IPN - possible "
 "fraudulent attempt (transaction ID: %s)."

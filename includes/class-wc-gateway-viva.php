@@ -313,7 +313,12 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 		$order_code = $data[ 'OrderCode' ];
 
 		// Save the order code for reference.
-		update_post_meta( $order->id, '_viva_order_code', $order_code );
+		if ( WCS_Viva_Core_Compatibility::is_wc_version_gte( '2.7' ) ) {
+			$order->add_meta_data( '_viva_order_code', $order_code, true );
+			$order->save();
+		} else {
+			update_post_meta( $order->id, '_viva_order_code', $order_code );
+		}
 
 		return array(
 			'result'   => 'success',
@@ -591,6 +596,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 
 	/**
 	 * Get the order id that corresponds to a given viva order number.
+	 * Still relies on 'WP_Query'.
 	 *
 	 * @since  1.0.0
 	 * @param  string $code
