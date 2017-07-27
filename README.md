@@ -4,6 +4,36 @@ The WooCommerce Viva Wallet Payment Gateway provides a PCI compliant payment pro
 
 This plugin implements the [Redirect Checkout](https://github.com/VivaPayments/API/wiki/Redirect-Checkout) method which sends the customer to the Viva Wallet website to enter payment details. This alleviates the security burden of PCI compliance since payment data is handled on Viva Wallet servers. Note that since your site never handles payment data, an SSL certificate is not needed.
 
+
+### Is This Free?
+
+Yes, this is 100% free. But there's a lot more to it:
+
+* The codebase adheres to the [WordPress Coding Standards](https://codex.wordpress.org/WordPress_Coding_Standards) and follows WooCommerce best practices and conventions.
+* The status of a successful transaction is verified. The gateway does not blindly trust the return url being called, or the content of a Webhook notification.
+* Viva Wallet **Webhooks** are supported. If you [configure](#3-set-up-viva-wallet-webhooks) Webhook settings correctly, the status of an order will automatically change when: i) a successful transaction is recorded, or ii) a refund is issued from the **My Sales > Sales** page of your Viva Wallet account panel.
+* The implementation supports the WooCommerce Refunds API. This means that you can [issue partial or full refunds](https://docs.woocommerce.com/document/woocommerce-refunds/) directly from within an order, without leaving your WooCommerce store.
+
+
+### What's the Catch?
+
+This is a non-commercial plugin. As such:
+
+* Development time for it is effectively being donated and is therefore, limited.
+* Support inquiries may not be answered in a timely manner.
+* Critical issues may not be resolved promptly.
+
+If you:
+
+* need help [setting up](#configuration) the gateway,
+* have a customization/integration requirement, or
+* want to see a feature added, e.g. support for payment tokens & recurring payments,
+
+...then we'd love to hear from you!
+
+Please understand that our time is as limited (and precious) as yours. If you need something that requires some of our time, it's not going to be free.
+
+
 ### Installation
 
 * Download a `.zip` file with the [latest version](https://github.com/somewherewarm/woocommerce-gateway-viva/releases).
@@ -11,6 +41,7 @@ This plugin implements the [Redirect Checkout](https://github.com/VivaPayments/A
 * Click **Upload Plugin** at the top.
 * **Choose File** and select the `.zip` file you downloaded in Step 1.
 * Click **Install Now** and **Activate** the extension.
+
 
 ### Configuration
 
