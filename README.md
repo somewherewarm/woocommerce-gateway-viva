@@ -16,8 +16,8 @@ This plugin implements the [Redirect Checkout](https://github.com/VivaPayments/A
 
 To accept payments using the **WooCommerce Viva Wallet** gateway, you must:
 
-1. Have a valid Viva Wallet business/merchant account.
-2. Link the gateway with your Viva Wallet business/merchant account by configuring the gateway settings at **WooCommerce > Settings > Checkout > Viva Wallet**.
+* Have a valid Viva Wallet business/merchant account.
+* Link the gateway with your Viva Wallet business/merchant account by configuring the gateway settings at **WooCommerce > Settings > Checkout > Viva Wallet**.
 
 To configure the Viva Wallet gateway settings, follow these steps:
 
@@ -50,7 +50,7 @@ To configure **Webhooks**:
 1. Log into your [Viva Wallet](https://www.vivawallet.com) business/merchant account panel.
 2. Go to **Settings > API Access > Webhooks**.
 3. Click **Create Webhook**.
-4. In the **URL** field, enter your website URL, followed by `?wc-api=wc_gateway_viva`, e.g. http://mysite.gr/?wc-api=wc_gateway_viva
+4. In the **URL** field, enter your website URL, followed by `?wc-api=wc_gateway_viva`, e.g. `http://mysite.gr/?wc-api=wc_gateway_viva`.
 5. Check the **Active** option.
 6. Choose the **Transaction Payment Created** Event Type.
 7. **Save** the Webhook. Now orders will change from _pending_ to _processing_ or _completed_ when a successful transaction takes place.
