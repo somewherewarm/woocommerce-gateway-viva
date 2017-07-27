@@ -92,14 +92,20 @@ class WC_Viva {
 	 */
 	public static function includes() {
 
-		// Make the WC_Gateway_Viva class available.
-		if ( class_exists( 'WC_Payment_Gateway' ) ) {
-			require_once( 'includes/class-wc-gateway-viva.php' );
-		}
+		// Compatibility functions.
+		require_once( 'includes/class-wc-viva-compatibility.php' );
 
-		// Admin notices.
-		if ( is_admin() ) {
-			require_once( 'includes/admin/class-wc-viva-admin-notices.php' );
+		if ( is_wc_version_gte( self::REQ_WC_VERSION ) ) {
+
+			// Make the WC_Gateway_Viva class available.
+			if ( class_exists( 'WC_Payment_Gateway' ) ) {
+				require_once( 'includes/class-wc-gateway-viva.php' );
+			}
+
+			// Admin notices.
+			if ( is_admin() ) {
+				require_once( 'includes/admin/class-wc-viva-admin-notices.php' );
+			}
 		}
 	}
 
