@@ -669,7 +669,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 			$log_id = 'wc_' . $this->get_id();
 		}
 
-		WC_Viva_Core_Compatibility::log( $message, $level, $log_id )
+		WC_Viva_Core_Compatibility::log( $message, $level, $log_id );
 	}
 }
 
