@@ -2,7 +2,7 @@
 /**
  * WC_Viva_Admin_Notices class
  *
- * @author   SomewhereWarm <sw@somewherewarm.net>
+ * @author   SomewhereWarm <info@somewherewarm.gr>
  * @package  WooCommerce Viva Wallet Payment Gateway
  * @since    1.0.0
  */

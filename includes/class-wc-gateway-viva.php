@@ -2,7 +2,7 @@
 /**
  * WC_Gateway_Viva class
  *
- * @author   SomewhereWarm <sw@somewherewarm.net>
+ * @author   SomewhereWarm <info@somewherewarm.gr>
  * @package  WooCommerce Viva Wallet Payment Gateway
  * @since    1.0.0
  */
@@ -34,7 +34,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 	/** @var string created transaction types. */
 	private $ipn_transaction_types;
 
-	/** @var string configuration option: 4 options for debug mode - off, checkout, log, both. */
+	/** @var string configuration option: 2 options for debugging - off, log. */
 	private $debug_mode;
 
 	/** @var WC_Logger instance. */
@@ -280,11 +280,11 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 			'Phone'        => preg_replace( '/\D/', '', $order->billing_phone ),
 			'MerchantTrns' => $order->id,
 			'CustomerTrns' => sprintf( __( 'Order #%s', 'woocommerce-gateway-viva' ), $order->id ),
-			'Amount'       => number_format( $order->get_total() * 100, 0, '.', '' ), // Important: amount in cents.
+			'Amount'       => number_format( $order->get_total() * 100, 0, '.', '' ), // Important: Amount in cents.
 			'SourceCode'   => $this->source_code,
 		), $order, $this );
 
-		if ( $this->debug_log() ) {
+		if ( $this->logging_enabled() ) {
 			$this->log( "Payment Request: " . print_r( $viva_args, true ) );
 		}
 
@@ -300,12 +300,12 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 		$data     = (array) json_decode( wp_remote_retrieve_body( $response ) );
 		$result   = '';
 
-		if ( $this->debug_log() ) {
+		if ( $this->logging_enabled() ) {
 			$this->log( "Viva Response: " . print_r( $response, true ) );
 		}
 
 		if ( $data[ 'ErrorCode' ] > 0 ) {
-			if ( $this->debug_log() ) {
+			if ( $this->logging_enabled() ) {
 				$this->log( 'Error Response: ' . print_r( $data, true ) );
 			}
 			$result = 'failure';
@@ -379,12 +379,12 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 
 			// Sucessful payment.
 			if ( $order ) {
-				if ( $this->debug_log() ) {
+				if ( $this->logging_enabled() ) {
 					$this->log( "Processed Viva payment for order #" . $order->id . ". Waiting for IPN to complete order. Request details: " . print_r( $_GET, true ) );
 				}
 				$redirect = $this->get_return_url( $order );
 			} else {
-				if ( $this->debug_log() ) {
+				if ( $this->logging_enabled() ) {
 					$this->log( "Error: Processed Viva payment for unknown order. Possible fraudulent attempt. Request details: " . print_r( $_GET, true ) );
 				}
 				$redirect = $this->get_return_url();
@@ -394,12 +394,12 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 
 			// Failed payment.
 			if ( $order ) {
-				if ( $this->debug_log() ) {
+				if ( $this->logging_enabled() ) {
 					$this->log( "Viva payment for order #" . $order->id . " failed. Redirecting user to checkout order. Request details: " . print_r( $_GET, true ) );
 				}
 				$redirect = esc_url( add_query_arg( array( 'result' => 'failure', 'failed_viva_order_code' => $order_code ), $order->get_checkout_payment_url() ) );
 			} else {
-				if ( $this->debug_log() ) {
+				if ( $this->logging_enabled() ) {
 					$this->log( "Error: Viva payment for an unknown order failed. The order may have been deleted, or this could indicate a possible fraudulent attempt. Request details: " . print_r( $_GET, true ) );
 				}
 				$redirect = wc_get_checkout_url();
@@ -430,7 +430,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 
 		$response = wp_safe_remote_get( $this->endpoint . '/api/messages/config/token', $args );
 
-		if ( $this->debug_log() ) {
+		if ( $this->logging_enabled() ) {
 			$this->log( "Viva IPN Verification Response: " . print_r( $response, true ) );
 		}
 
@@ -467,7 +467,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 		$message_code    = (int) $message_content[ 'EventTypeId' ];
 		$event_data      = (array) $message_content[ 'EventData' ];
 
-		if ( $this->debug_log() ) {
+		if ( $this->logging_enabled() ) {
 			$this->log( "Viva IPN Received: " . print_r( $message_content, true ) );
 		}
 
@@ -478,7 +478,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 			$order    = wc_get_order( $order_id );
 
 			if ( ! $order ) {
-				if ( $this->debug_log() ) {
+				if ( $this->logging_enabled() ) {
 					$this->log( "Order not found." );
 				}
 				return;
@@ -511,7 +511,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 			$order    = $order_id ? wc_get_order( $order_id ) : $this->get_order_id_from_viva_code( $event_data[ 'OrderCode' ] );
 
 			if ( ! $order ) {
-				if ( $this->debug_log() ) {
+				if ( $this->logging_enabled() ) {
 					$this->log( "Order not found." );
 				}
 				return;
@@ -552,7 +552,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 			return $valid;
 		}
 
-		if ( $this->debug_log() ) {
+		if ( $this->logging_enabled() ) {
 			$this->log( "Validating Viva IPN - checking status of transaction ID: " . $transaction_id . "..." );
 		}
 
@@ -564,7 +564,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 
 		$response = wp_safe_remote_get( $this->endpoint . '/api/transactions/' . $transaction_id, $args );
 
-		if ( $this->debug_log() ) {
+		if ( $this->logging_enabled() ) {
 			$this->log( "Viva response: " . print_r( $response, true ) );
 		}
 
@@ -581,7 +581,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 			}
 		}
 
-		if ( $this->debug_log() ) {
+		if ( $this->logging_enabled() ) {
 			if ( $valid ) {
 				$this->log( "Viva IPN is valid. Transaction existence and status confirmed." );
 			} else {
@@ -649,7 +649,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 	 * @since 1.0.0
 	 * @return boolean
 	 */
-	public function debug_log() {
+	public function logging_enabled() {
 		return self::DEBUG_MODE_LOG === $this->debug_mode;
 	}
 

@@ -1,22 +1,20 @@
 <?php
 /**
  * Plugin Name: WooCommerce Viva Wallet Gateway
- * Plugin URI: http://www.woocommerce.com/products/woocommerce-gateway-viva-wallet/
- * Description: Adds the Viva Wallet payment gateway to your WooCommerce website.
+ * Plugin URI: http://somewherewarm.gr/
+ * Description: Adds the Viva Wallet payment gateway to your WooCommerce website. A secure, clean implementation of the [Redirect Checkout](https://github.com/VivaPayments/API/wiki/Redirect-Checkout) method.
  * Version: 1.0.0
  *
- * Author: WooThemes
- * Author URI: http://woocommerce.com/
- * Developer: SomewhereWarm
- * Developer URI: http://somewherewarm.net/
+ * Author: SomewhereWarm
+ * Author URI: http://somewherewarm.gr/
  *
  * Text Domain: woocommerce-gateway-viva
  * Domain Path: /i18n/languages/
  *
  * Requires at least: 4.2
- * Tested up to: 4.5
+ * Tested up to: 4.8
  *
- * Copyright: © 2009-2016 Emmanouil Psychogyiopoulos.
+ * Copyright: © 2009-2017 SomewhereWarm SMPC.
  * License: GNU General Public License v3.0
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
  */
@@ -58,8 +56,8 @@ class WC_Viva {
 	/* Required WC version. */
 	const REQ_WC_VERSION = '2.3.0';
 
-	/* Required WC version. */
-	const DOCS_URL = 'http://docs.woothemes.com/document/woocommerce-gateway-viva-wallet/';
+	/* Docs URL. */
+	const DOCS_URL = 'https://github.com/somewherewarm/woocommerce-gateway-viva/';
 
 	/**
 	 * Plugin bootstrapping.

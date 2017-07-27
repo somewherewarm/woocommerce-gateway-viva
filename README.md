@@ -1,6 +1,14 @@
-# [WooCommerce Viva Wallet Payment Gateway](http://www.woocommerce.com/products/woocommerce-gateway-viva-wallet/)
+# WooCommerce Viva Wallet Payment Gateway
 
-## Repositories
+The WooCommerce Viva Wallet Payment Gateway provides a PCI compliant payment processing integration between WooCommerce and [Viva Wallet](https://www.vivawallet.com). Payments take place securely off-site on Viva's servers, providing an easy and secure payment integration.
 
-* The `/woothemes/woocommerce-gateway-viva/` repository is treated as a _deployment_ repository: all code committed to the `master` branch of this repository is considered stable and ready for release.
-* The `/somewherewarm/woocommerce-gateway-viva/` repository is treated as a _development_ repository: Commit history for this repository includes all commits for all changes to the code base, not just for new versions.
+This plugin implements the [Redirect Checkout](https://github.com/VivaPayments/API/wiki/Redirect-Checkout) method which sends the customer to the Viva Wallet website to enter payment details. This alleviates the security burden of PCI compliance since payment data is handled on Viva Wallet servers. Note that since your site never handles payment data, an SSL certificate is not needed.
+
+### Installation
+
+* Download a `.zip` file with the [latest version](https://github.com/somewherewarm/woocommerce-gateway-viva/releases).
+* Go to **WordPress Admin > Plugins > Add New**.
+* Click **Upload Plugin** at the top.
+* **Choose File** and select the `.zip` file you downloaded in Step 1.
+* Click **Install Now** and **Activate** the extension.
+
