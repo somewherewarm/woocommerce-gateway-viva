@@ -22,7 +22,7 @@ To accept payments using the **WooCommerce Viva Wallet** gateway, you must:
 To configure the Viva Wallet gateway settings, follow these steps:
 
 
-#### Configure Your Merchant ID, API Key and Payment Source.
+#### 1. Configure Your Merchant ID, API Key and Payment Source
 
 1. Log into your [Viva Wallet](https://www.vivawallet.com) business/merchant account panel.
 2. Go to **Settings > API Access > General**.
@@ -36,7 +36,7 @@ To configure the Viva Wallet gateway settings, follow these steps:
 10. A **Merchant ID and API Key validation successful** message should be displayed -- if not, go back to Step 8 and check that all details have been entered correctly.
 
 
-#### Set Up Viva Wallet Webhooks.
+#### 2. Set Up Viva Wallet Webhooks
 
 Viva Wallet can be configured to notify your store each time a specific event takes place, e.g. a sucessful transaction. To enable these notifications, you need to log into your [Viva Wallet](https://www.vivawallet.com) account and configure **Wehooks**.
 
