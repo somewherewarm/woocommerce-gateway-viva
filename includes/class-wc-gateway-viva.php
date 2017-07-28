@@ -89,8 +89,8 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 			self::IPN_CODE_TRANSACTION_REVERSED => array(
 				'4'  => __( 'Refund Card Transaction', 'woocommerce-gateway-viva' ),
 				'7'  => __( 'Void Card Transaction', 'woocommerce-gateway-viva' ),
-				'11'  => __( 'Wallet Refund Transaction', 'woocommerce-gateway-viva' ),
-				'13'  => __( 'Refund Card Transaction from Claim', 'woocommerce-gateway-viva' ),
+				'11' => __( 'Wallet Refund Transaction', 'woocommerce-gateway-viva' ),
+				'13' => __( 'Refund Card Transaction from Claim', 'woocommerce-gateway-viva' ),
 				'16' => __( 'Void Cash', 'woocommerce-gateway-viva' ),
 			),
 		);
@@ -359,9 +359,10 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 
 		$order          = wc_get_order( $order_id );
 		$transaction_id = $order && $order->get_transaction_id();
+		$refund_amount  = number_format( $amount * 100, 0, '.', '' ); // Amount must be in cents.
 
 		if ( $this->logging_enabled() ) {
-			$this->log( 'Processing refund for Order #' . $order_id . '. Amount to refund: ' . var_export( $amount, true ) . '.' );
+			$this->log( 'Processing refund for Order #' . $order_id . '. Amount to refund: ' . ( $amount ? $amount : var_export( $amount, true ) ) . '.' );
 		}
 
 		if ( ! $transaction_id ) {
@@ -369,32 +370,45 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 			return new WP_Error( 'error', __( 'Refund failed: Transaction ID not found.', 'woocommerce-gateway-viva' ) );
 		}
 
+		if ( ! $refund_amount ) {
+			$this->log( 'Refund Failed: Amount invalid.', 'error' );
+			return new WP_Error( 'error', __( 'Refund failed: Amount invalid.', 'woocommerce-gateway-viva' ) );
+		}
+
 		$args = array(
-			'method'      => 'DELETE',
-			'body'        => array(
-				'Amount' => number_format( $amount * 100, 0, '.', '' ) // Amount must be in cents.
+			'method'  => 'DELETE',
+			'body'    => array(
+				'Amount' => $refund_amount
 			),
-			'redirection' => 0,
-			'headers'     => array(
+			'headers' => array(
 				'Authorization' => 'Basic ' . base64_encode( $this->merchant_id . ':' . $this->api_key )
 			),
 		);
 
-		$response = wp_safe_remote_request( $this->endpoint . '/api/transactions/' . $transaction_id, $args );
-		$data     = (array) json_decode( wp_remote_retrieve_body( $response ) );
+		$response = wp_safe_remote_request( $this->endpoint . '/api/transactions/' . $transaction_id . '/?amount=' . $refund_amount, $args );
 
-		if ( $this->logging_enabled() ) {
-			$this->log( 'Viva response: ' . print_r( $response, true ) );
-		}
+		if ( is_wp_error( $response ) ) {
 
-		if ( isset( $data[ 'ErrorCode' ] ) && absint( $data[ 'ErrorCode' ] ) > 0 ) {
+			$this->log( 'Refund Failed: ' . $response->get_error_message(), 'error' );
+			return new WP_Error( 'error', $response->get_error_message() );
+
+		} else {
+
+			$data = (array) json_decode( wp_remote_retrieve_body( $response ) );
+
 			if ( $this->logging_enabled() ) {
-				$this->log( 'Error Response: ' . print_r( $data, true ), 'error' );
+				$this->log( 'Viva response: ' . print_r( $response, true ) );
 			}
-			return new WP_Error( 'error', __( 'Refund failed. Reason: ' . $data[ 'ErrorText' ] . '.' , 'woocommerce-gateway-viva' ) );
-		}
 
-		return true;
+			if ( isset( $data[ 'ErrorCode' ] ) && absint( $data[ 'ErrorCode' ] ) > 0 ) {
+				if ( $this->logging_enabled() ) {
+					$this->log( 'Error Response: ' . print_r( $data, true ), 'error' );
+				}
+				return new WP_Error( 'error', __( 'Refund failed. Reason: ' . $data[ 'ErrorText' ] . '.' , 'woocommerce-gateway-viva' ) );
+			}
+
+			return true;
+		}
 	}
 
 	/**
@@ -567,14 +581,14 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 
 			if ( $ipn_valid ) {
 				if ( array_key_exists( $event_data[ 'TransactionTypeId' ], $this->ipn_transaction_types[ $message_code ] ) ) {
-					$order->add_order_note( sprintf( __( 'Viva Wallet payment notification received via IPN (transaction type: &quot;%1$s&quot;, paid by: %2$s, transaction ID: %3$s).', 'woocommerce-gateway-viva' ), $this->ipn_transaction_types[ $message_code ][ $event_data[ 'TransactionTypeId' ] ], $event_data[ 'Email' ], $event_data[ 'TransactionId' ] ) );
+					$order->add_order_note( sprintf( __( 'Viva Wallet payment notification received: &quot;%1$s&quot; transaction with ID %2$s successful, paid by %3$s.', 'woocommerce-gateway-viva' ), $this->ipn_transaction_types[ $message_code ][ $event_data[ 'TransactionTypeId' ] ], $event_data[ 'TransactionId' ], $event_data[ 'Email' ] ) );
 					// Mark order as completed.
 					$order->payment_complete( $event_data[ 'TransactionId' ] );
 				} else {
-					$order->add_order_note( sprintf( __( 'Viva Wallet payment notification received via IPN. Payment code (%1$s) invalid (paid by: %2$s, transaction ID: %3$s).', 'woocommerce-gateway-viva' ), $event_data[ 'TransactionTypeId' ], $event_data[ 'Email' ], $event_data[ 'TransactionId' ] ) );
+					$order->add_order_note( sprintf( __( 'Viva Wallet payment notification received: Unrecognized &quot;%1$s&quot; transaction with ID %2$s, paid by %3$s.', 'woocommerce-gateway-viva' ), $event_data[ 'TransactionTypeId' ], $event_data[ 'TransactionId' ], $event_data[ 'Email' ] ) );
 				}
 			} else {
-				$order->add_order_note( sprintf( __( 'Invalid Viva Wallet payment notification received via IPN - possible fraudulent order attempt (transaction ID: %s).', 'woocommerce-gateway-viva' ), $event_data[ 'TransactionId' ] ) );
+				$order->add_order_note( sprintf( __( 'Invalid Viva Wallet payment notification received: Possible fraudulent order attempt with transaction ID %s.', 'woocommerce-gateway-viva' ), $event_data[ 'TransactionId' ] ) );
 			}
 
 		} elseif ( self::IPN_CODE_TRANSACTION_REVERSED === $message_code ) {
@@ -596,14 +610,14 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 			if ( $ipn_valid ) {
 				// Only handle full refunds, not partial.
 				if ( $order->get_total() == ( $event_data[ 'Amount' ] * -1 ) ) {
-					$order->add_order_note( sprintf( __( 'Viva Wallet refund notification received via IPN (transaction type: &quot;%1$s&quot;, transaction ID: %2$s).', 'woocommerce-gateway-viva' ), $this->ipn_transaction_types[ $message_code ][ $event_data[ 'TransactionTypeId' ] ], $event_data[ 'TransactionId' ] ) );
+					$order->add_order_note( sprintf( __( 'Viva Wallet refund notification received: &quot;%1$s&quot; transaction with ID %2$s.', 'woocommerce-gateway-viva' ), $this->ipn_transaction_types[ $message_code ][ $event_data[ 'TransactionTypeId' ] ], $event_data[ 'TransactionId' ] ) );
 					// Mark order as refunded.
 					$order->update_status( 'refunded' );
 				} else {
-					$order->add_order_note( sprintf( __( 'Viva Wallet partial refund notification received via IPN (amount: %1$s, transaction type: %2$s, transaction ID: %3$s).', 'woocommerce-gateway-viva' ), $event_data[ 'Amount' ], $this->ipn_transaction_types[ $event_data[ 'TransactionTypeId' ] ], $event_data[ 'TransactionId' ] ) );
+					$order->add_order_note( sprintf( __( 'Viva Wallet partial refund notification received: &quot;%1$s&quot; transaction with ID %2$s. Refunded amount: %3$s.', 'woocommerce-gateway-viva' ), $this->ipn_transaction_types[ $event_data[ 'TransactionTypeId' ] ], $event_data[ 'TransactionId' ], $event_data[ 'Amount' ] ) );
 				}
 			} else {
-				$order->add_order_note( sprintf( __( 'Invalid Viva Wallet refund notification received via IPN - possible fraudulent attempt (transaction ID: %s).', 'woocommerce-gateway-viva' ), $event_data[ 'TransactionId' ] ) );
+				$order->add_order_note( sprintf( __( 'Invalid Viva Wallet refund notification received: Possible fraudulent attempt with transaction ID %s.', 'woocommerce-gateway-viva' ), $event_data[ 'TransactionId' ] ) );
 			}
 		}
 	}
