@@ -358,11 +358,11 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 	public function process_refund( $order_id, $amount = null, $reason = '' ) {
 
 		$order          = wc_get_order( $order_id );
-		$transaction_id = $order && $order->get_transaction_id();
+		$transaction_id = $order ? $order->get_transaction_id() : false;
 		$refund_amount  = number_format( $amount * 100, 0, '.', '' ); // Amount must be in cents.
 
 		if ( $this->logging_enabled() ) {
-			$this->log( 'Processing refund for Order #' . $order_id . '. Amount to refund: ' . ( $amount ? $amount : var_export( $amount, true ) ) . '.' );
+			$this->log( 'Processing refund for Order #' . $order_id . '.' );
 		}
 
 		if ( ! $transaction_id ) {
@@ -377,15 +377,16 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 
 		$args = array(
 			'method'  => 'DELETE',
-			'body'    => array(
-				'Amount' => $refund_amount
-			),
 			'headers' => array(
 				'Authorization' => 'Basic ' . base64_encode( $this->merchant_id . ':' . $this->api_key )
-			),
+			)
 		);
 
-		$response = wp_safe_remote_request( $this->endpoint . '/api/transactions/' . $transaction_id . '/?amount=' . $refund_amount, $args );
+		if ( $this->logging_enabled() ) {
+			$this->log( 'Refund Transaction ID: ' . $transaction_id . '. Amount to refund: ' . $amount . '.' );
+		}
+
+		$response = wp_safe_remote_request( $this->endpoint . '/api/transactions/' . $transaction_id . '/?Amount=' . $refund_amount, $args );
 
 		if ( is_wp_error( $response ) ) {
 
@@ -407,7 +408,11 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 				return new WP_Error( 'error', __( 'Refund failed. Reason: ' . $data[ 'ErrorText' ] . '.' , 'woocommerce-gateway-viva' ) );
 			}
 
-			return true;
+			if ( isset( $data[ 'StatusId' ] ) ) {
+				return true;
+			}
+
+			return false;
 		}
 	}
 

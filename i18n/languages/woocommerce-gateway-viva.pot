@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: WooCommerce Viva Wallet Gateway 1.0.0\n"
 "Report-Msgid-Bugs-To: "
 "https://github.com/somewherewarm/woocommerce-gateway-viva\n"
-"POT-Creation-Date: 2017-07-28 12:15:32+00:00\n"
+"POT-Creation-Date: 2017-07-28 13:07:52+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -215,7 +215,7 @@ msgid "Order #%s"
 msgstr ""
 
 #: includes/class-wc-gateway-viva.php:330
-#: includes/class-wc-gateway-viva.php:718
+#: includes/class-wc-gateway-viva.php:723
 msgid ""
 "Payment with %1$s failed. Please try again later, or use a different "
 "payment method."
@@ -229,37 +229,37 @@ msgstr ""
 msgid "Refund failed: Amount invalid."
 msgstr ""
 
-#: includes/class-wc-gateway-viva.php:584
+#: includes/class-wc-gateway-viva.php:589
 msgid ""
 "Viva Wallet payment notification received: &quot;%1$s&quot; transaction "
 "with ID %2$s successful, paid by %3$s."
 msgstr ""
 
-#: includes/class-wc-gateway-viva.php:588
+#: includes/class-wc-gateway-viva.php:593
 msgid ""
 "Viva Wallet payment notification received: Unrecognized &quot;%1$s&quot; "
 "transaction with ID %2$s, paid by %3$s."
 msgstr ""
 
-#: includes/class-wc-gateway-viva.php:591
+#: includes/class-wc-gateway-viva.php:596
 msgid ""
 "Invalid Viva Wallet payment notification received: Possible fraudulent "
 "order attempt with transaction ID %s."
 msgstr ""
 
-#: includes/class-wc-gateway-viva.php:613
+#: includes/class-wc-gateway-viva.php:618
 msgid ""
 "Viva Wallet refund notification received: &quot;%1$s&quot; transaction with "
 "ID %2$s."
 msgstr ""
 
-#: includes/class-wc-gateway-viva.php:617
+#: includes/class-wc-gateway-viva.php:622
 msgid ""
 "Viva Wallet partial refund notification received: &quot;%1$s&quot; "
 "transaction with ID %2$s. Refunded amount: %3$s."
 msgstr ""
 
-#: includes/class-wc-gateway-viva.php:620
+#: includes/class-wc-gateway-viva.php:625
 msgid ""
 "Invalid Viva Wallet refund notification received: Possible fraudulent "
 "attempt with transaction ID %s."
