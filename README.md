@@ -66,8 +66,8 @@ To accept payments from your WooCommerce website, a Viva Wallet **Payment Source
 3. Click **New Website/App** to create a new source.
 4. Fill in the **Domain Name** field, e.g. `mysite.gr`.
 5. Ensure that **Redirection** is selected under **Integration Method**.
-6. Enter `/?wc-api=wc_gateway_viva&result=success` in the **Success URL** field.
-7. Enter `/?wc-api=wc_gateway_viva&result=failure` in the **Failure URL** field.
+6. Enter `?wc-api=wc_gateway_viva&result=success` in the **Success URL** field.
+7. Enter `?wc-api=wc_gateway_viva&result=failure` in the **Failure URL** field.
 
 #### 2. Configure Your Merchant ID, API Key and Payment Source
 
