@@ -387,7 +387,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 			$this->log( 'Viva response: ' . print_r( $response, true ) );
 		}
 
-		if ( isset( $data[ 'ErrorCode' ] ) absint( $data[ 'ErrorCode' ] ) > 0 ) {
+		if ( isset( $data[ 'ErrorCode' ] ) && absint( $data[ 'ErrorCode' ] ) > 0 ) {
 			if ( $this->logging_enabled() ) {
 				$this->log( 'Error Response: ' . print_r( $data, true ), 'error' );
 			}
