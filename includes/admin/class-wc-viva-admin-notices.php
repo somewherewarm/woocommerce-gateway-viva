@@ -93,10 +93,14 @@ class WC_Viva_Admin_Notices {
 					}
 
 					// Send token request with the new creds.
-					$data = (array) json_decode( $gateway->request_config_token( $merchant_id, $api_key ) );
+					$data = $gateway->request_config_token( $merchant_id, $api_key );
+
+					if ( $data ) {
+						$data = (array) json_decode( $data );
+					}
 
 					// Error condition: creds invalid.
-					if ( ! isset( $data[ 'Key' ] ) ) {
+					if ( ! $data || ! isset( $data[ 'Key' ] ) ) {
 						self::$gateway_configuration_error_code = 2;
 					// Creds valid.
 					} else {

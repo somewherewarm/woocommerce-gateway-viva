@@ -545,9 +545,13 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 
 		$response = wp_safe_remote_get( $this->endpoint . '/api/messages/config/token', $args );
 
-		$this->log( 'IPN Verification Response: ' . print_r( $response, true ) );
-
-		$data = wp_remote_retrieve_body( $response );
+		if ( is_wp_error( $response ) ) {
+			$this->log( 'Configuration token request failed: ' . $response->get_error_message(), 'error' );
+			$data = false;
+		} else {
+			$this->log( 'Configuration token response: ' . print_r( $response, true ) );
+			$data = wp_remote_retrieve_body( $response );
+		}
 
 		return $data;
 	}
