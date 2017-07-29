@@ -331,31 +331,44 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 		);
 
 		$response = wp_safe_remote_post( $this->endpoint . '/api/orders', $args );
-		$data     = (array) json_decode( wp_remote_retrieve_body( $response ) );
-		$result   = '';
 
-		$this->log( 'Viva response: ' . print_r( $response, true ) );
+		if ( is_wp_error( $response ) ) {
 
-		if ( $data[ 'ErrorCode' ] > 0 ) {
-			$this->log( 'Error Response: ' . print_r( $data, true ), 'error' );
-			$result = 'failure';
+			$result = 'fail';
+			$this->log( 'Payment Failed: ' . $response->get_error_message(), 'error' );
 			wc_add_notice( sprintf( __( 'Payment with %1$s failed. Please try again later, or use a different payment method.', 'woocommerce-gateway-viva' ), $this->title ), 'error' );
-			return;
-		}
 
-		$order_code = $data[ 'OrderCode' ];
-
-		// Save the order code for reference.
-		if ( WC_Viva_Core_Compatibility::is_wc_version_gte( '2.7' ) ) {
-			$order->add_meta_data( '_viva_order_code', $order_code, true );
-			$order->save();
 		} else {
-			update_post_meta( $order_id, '_viva_order_code', $order_code );
+
+			$data = (array) json_decode( wp_remote_retrieve_body( $response ) );
+
+			$this->log( 'Viva response: ' . print_r( $response, true ) );
+
+			if ( $data[ 'ErrorCode' ] > 0 ) {
+
+				$result = 'fail';
+
+				$this->log( 'Error Response: ' . print_r( $data, true ), 'error' );
+				wc_add_notice( sprintf( __( 'Payment with %1$s failed. Please try again later, or use a different payment method.', 'woocommerce-gateway-viva' ), $this->title ), 'error' );
+
+			} else {
+
+				$result     = 'success';
+				$order_code = $data[ 'OrderCode' ];
+
+				// Save the order code for reference.
+				if ( WC_Viva_Core_Compatibility::is_wc_version_gte( '2.7' ) ) {
+					$order->add_meta_data( '_viva_order_code', $order_code, true );
+					$order->save();
+				} else {
+					update_post_meta( $order_id, '_viva_order_code', $order_code );
+				}
+			}
 		}
 
 		return array(
-			'result'   => 'success',
-			'redirect' => esc_url_raw( add_query_arg( array( 'ref' => $order_code, 'lang' => $lang ), $this->endpoint . '/web/checkout' ) ),
+			'result'   => $result,
+			'redirect' => 'success' === $result ? esc_url_raw( add_query_arg( array( 'ref' => $order_code, 'lang' => $lang ), $this->endpoint . '/web/checkout' ) ) : '',
 		);
 	}
 
