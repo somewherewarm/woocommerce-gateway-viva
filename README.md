@@ -11,10 +11,10 @@ Yes, it's free. But here's what you should _really_ care about:
 
 * The codebase adheres to the [WordPress Coding Standards](https://codex.wordpress.org/WordPress_Coding_Standards) and follows WooCommerce best practices and conventions.
 * The status of a successful transaction is verified. The gateway does not blindly trust the return url being called, or the content of a Webhook notification.
-* Viva Wallet **Webhooks** are supported. If you [configure](#3-set-up-viva-wallet-webhooks) Webhook settings correctly, the status of an order will automatically change when: i) a successful transaction is recorded, or ii) a refund is issued from the **My Sales > Sales** page of your Viva Wallet account panel.
+* Viva Wallet **Webhooks** are supported. If you [configure](#3-set-up-viva-wallet-webhooks) Webhook settings correctly, the status of an order will automatically change when a refund is issued from the **My Sales > Sales** page of your Viva Wallet account panel.
 * The implementation supports the WooCommerce Refunds API. This means that you can [issue partial or full refunds](https://docs.woocommerce.com/document/woocommerce-refunds/) directly from within an order, without leaving your WooCommerce store.
 
-In short, if you run a WooCommerce store and want to accept payments using Viva Wallet in the most simple and secure manner, look no further.
+In short, this is probably the most complete WooCommerce Viva Wallet Gateway implementation to date.
 
 
 ### What's the Catch?
@@ -27,16 +27,12 @@ This is a non-commercial plugin. As such:
 
 If you:
 
-* need help [setting up](#configuration) the gateway,
 * have a customization/integration requirement, or
 * want to see another feature added, e.g. support for **tokens** or **recurring payments**,
 
 ...then we'd love to [hear from you](http://somewherewarm.gr/about/)!
 
-Please understand that:
-
-* Our time is as limited (and precious) as yours. If you need something that requires some of our time, it's probably not going to be for free.
-* This repository is not a place to ask for help. Use it to report bugs, propose improvements, or discuss new features.
+Please understand that this repository is not a place to seek help with configuration-related issues. Use it to report bugs, propose improvements, or discuss new features.
 
 
 ### Installation
@@ -83,12 +79,9 @@ To accept payments from your WooCommerce website, a Viva Wallet **Payment Source
 
 #### 3. Set Up Viva Wallet Webhooks
 
-Viva Wallet can be configured to notify your store each time a specific event takes place, e.g. a sucessful transaction. To enable these notifications, you need to log into your [Viva Wallet](https://www.vivawallet.com) account and configure **Wehooks**.
+Viva Wallet can be configured to notify your store each time a specific event takes place, e.g. a refund. To enable these notifications, you need to log into your [Viva Wallet](https://www.vivawallet.com) account and configure **Wehooks**.
 
-With **Webhooks** configured correctly, order status will automatically change:
-
-* From _pending_ to _processing_ or _completed_ when a successful transaction is recorded.
-* From _processing_ or _completed_ to _refunded_ when a full refund is issued from the **My Sales > Sales** page of your Viva Wallet account panel.
+With **Webhooks** configured correctly, order status will automatically change from _processing_ or _completed_ to _refunded_ when a full refund is issued from the **My Sales > Sales** page of your Viva Wallet account panel.
 
 To configure **Webhooks**:
 
@@ -98,7 +91,7 @@ To configure **Webhooks**:
 4. In the **URL** field, enter your website URL, followed by `?wc-api=wc_gateway_viva`, e.g. `http://mysite.gr/?wc-api=wc_gateway_viva`.
 5. Check the **Active** option.
 6. Choose the **Transaction Payment Created** Event Type.
-7. **Save** the Webhook. Now orders will change from _pending_ to _processing_ or _completed_ when a successful transaction takes place.
+7. **Save** the Webhook. Now orders will change from _pending_ to _processing_ or _completed_ when a pending transaction is completed.
 8. Go back to Step 3 and create another identical Webhook. This time, choose the **Transaction Reversal Created** Event Type.
 9. **Save** the Webhook. Now orders will change from _processing_ or _completed_ to _refunded_ when a full refund is issued from the **My Sales > Sales** page.
 
