@@ -38,6 +38,24 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 	private $ipn_transaction_types;
 
 	/**
+	 * Transaction status IDs.
+	 * @var string
+	 */
+	private $transaction_status_ids = array(
+		'error'                    => 'E',
+		'in_progress'              => 'A',
+		'disputed'                 => 'M',
+		'dispute_pending_response' => 'MA',
+		'dispute_in_progress'      => 'MI',
+		'dispute_refunded'         => 'ML',
+		'dispute_won'              => 'MW',
+		'dispute_suspected'        => 'MS',
+		'cancelled'                => 'X',
+		'refunded'                 => 'R',
+		'completed'                => 'F'
+	);
+
+	/**
 	 * Configuration options for debugging - 'off', 'log'.
 	 * @var string
 	 */
@@ -92,7 +110,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 				'11' => __( 'Wallet Refund Transaction', 'woocommerce-gateway-viva' ),
 				'13' => __( 'Refund Card Transaction from Claim', 'woocommerce-gateway-viva' ),
 				'16' => __( 'Void Cash', 'woocommerce-gateway-viva' ),
-			),
+			)
 		);
 
 		/*
@@ -302,9 +320,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 			'SourceCode'   => $this->source_code,
 		), $order, $this );
 
-		if ( $this->logging_enabled() ) {
-			$this->log( 'Payment Request: ' . print_r( $payment_args, true ) );
-		}
+		$this->log( 'Payment Request: ' . print_r( $payment_args, true ) );
 
 		$args = array(
 			'body'        => $payment_args,
@@ -318,14 +334,10 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 		$data     = (array) json_decode( wp_remote_retrieve_body( $response ) );
 		$result   = '';
 
-		if ( $this->logging_enabled() ) {
-			$this->log( 'Viva response: ' . print_r( $response, true ) );
-		}
+		$this->log( 'Viva response: ' . print_r( $response, true ) );
 
 		if ( $data[ 'ErrorCode' ] > 0 ) {
-			if ( $this->logging_enabled() ) {
-				$this->log( 'Error Response: ' . print_r( $data, true ), 'error' );
-			}
+			$this->log( 'Error Response: ' . print_r( $data, true ), 'error' );
 			$result = 'failure';
 			wc_add_notice( sprintf( __( 'Payment with %1$s failed. Please try again later, or use a different payment method.', 'woocommerce-gateway-viva' ), $this->title ), 'error' );
 			return;
@@ -361,9 +373,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 		$transaction_id = $order ? $order->get_transaction_id() : false;
 		$refund_amount  = number_format( $amount * 100, 0, '.', '' ); // Amount must be in cents.
 
-		if ( $this->logging_enabled() ) {
-			$this->log( 'Processing refund for Order #' . $order_id . '.' );
-		}
+		$this->log( 'Processing refund for Order #' . $order_id . '.' );
 
 		if ( ! $transaction_id ) {
 			$this->log( 'Refund Failed: Transaction ID not found.', 'error' );
@@ -382,9 +392,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 			)
 		);
 
-		if ( $this->logging_enabled() ) {
-			$this->log( 'Refund Transaction ID: ' . $transaction_id . '. Amount to refund: ' . $amount . '.' );
-		}
+		$this->log( 'Refund Transaction ID: ' . $transaction_id . '. Amount to refund: ' . $amount . '.' );
 
 		$response = wp_safe_remote_request( $this->endpoint . '/api/transactions/' . $transaction_id . '/?Amount=' . $refund_amount, $args );
 
@@ -397,14 +405,10 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 
 			$data = (array) json_decode( wp_remote_retrieve_body( $response ) );
 
-			if ( $this->logging_enabled() ) {
-				$this->log( 'Viva response: ' . print_r( $response, true ) );
-			}
+			$this->log( 'Viva response: ' . print_r( $response, true ) );
 
 			if ( isset( $data[ 'ErrorCode' ] ) && absint( $data[ 'ErrorCode' ] ) > 0 ) {
-				if ( $this->logging_enabled() ) {
-					$this->log( 'Error Response: ' . print_r( $data, true ), 'error' );
-				}
+				$this->log( 'Error Response: ' . print_r( $data, true ), 'error' );
 				return new WP_Error( 'error', __( 'Refund failed. Reason: ' . $data[ 'ErrorText' ] . '.' , 'woocommerce-gateway-viva' ) );
 			}
 
@@ -444,6 +448,8 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 	 */
 	public function wc_api_request_handler() {
 
+		$this->log( 'Request received on gateway endpoint...' );
+
 		if ( isset( $_GET[ 'result' ] ) ) {
 			$this->processed_payment_handler();
 		} else {
@@ -458,42 +464,46 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 	 */
 	private function processed_payment_handler() {
 
-		$order    = false;
-		$redirect = false;
+		$order          = false;
+		$order_code     = isset( $_GET[ 's' ] ) ? $_GET[ 's' ] : '';
+		$transaction_id = isset( $_GET[ 't' ] ) ? $_GET[ 't' ] : '';
+		$redirect       = false;
 
-		if ( isset( $_GET[ 's' ] ) ) {
-
-			$order_code = $_GET[ 's' ];
-			$order      = $this->get_order_id_from_viva_code( $order_code );
+		if ( $order_code ) {
+			$order = $this->get_order_id_from_viva_code( $order_code );
 		}
 
-		if ( $_GET[ 'result' ] === 'success' && isset( $_GET[ 's' ] ) ) {
+		// Sucessful payment.
+		if ( 'success' === $_GET[ 'result' ] ) {
 
-			// Sucessful payment.
 			if ( $order ) {
-				if ( $this->logging_enabled() ) {
-					$this->log( 'Processed payment for Order #' . WC_Viva_Core_Compatibility::get_order_id( $order ) . '. Waiting for IPN to complete order. Request details: ' . print_r( $_GET, true ) );
+
+				// If the transaction is valid and payment cleared, mark order as complete now.
+				if ( $transaction_id && $this->validate_transaction( $transaction_id ) ) {
+
+					$order->payment_complete( $transaction_id );
+					$this->log( 'Payment for Order #' . WC_Viva_Core_Compatibility::get_order_id( $order ) . ' confirmed. Completing order...' );
+
+				// Otherwise, wait for IPN.
+				} else {
+					$this->log( 'Processing payment for Order #' . WC_Viva_Core_Compatibility::get_order_id( $order ) . '. Waiting for IPN to complete order. Request details: ' . print_r( $_GET, true ) );
 				}
+
 				$redirect = $this->get_return_url( $order );
+
 			} else {
-				if ( $this->logging_enabled() ) {
-					$this->log( 'Error: Processed payment for an unknown order. Possible fraudulent attempt. Request details: ' . print_r( $_GET, true ), 'error' );
-				}
+				$this->log( 'Error: Processed payment for an unknown order. Possible fraudulent attempt. Request details: ' . print_r( $_GET, true ), 'error' );
 				$redirect = $this->get_return_url();
 			}
 
+		// Failed payment.
 		} else {
 
-			// Failed payment.
 			if ( $order ) {
-				if ( $this->logging_enabled() ) {
-					$this->log( 'Payment for Order #' . WC_Viva_Core_Compatibility::get_order_id( $order ) . ' failed. Redirecting user to checkout order. Request details: ' . print_r( $_GET, true ), 'error' );
-				}
+				$this->log( 'Payment for Order #' . WC_Viva_Core_Compatibility::get_order_id( $order ) . ' failed. Redirecting user to checkout order. Request details: ' . print_r( $_GET, true ), 'error' );
 				$redirect = esc_url( add_query_arg( array( 'result' => 'failure', 'failed_viva_order_code' => $order_code ), $order->get_checkout_payment_url() ) );
 			} else {
-				if ( $this->logging_enabled() ) {
-					$this->log( 'Error: Payment for an unknown order failed. The order may have been deleted, or this could indicate a possible fraudulent attempt. Request details: ' . print_r( $_GET, true ), 'error' );
-				}
+				$this->log( 'Error: Payment for an unknown order failed. The order may have been deleted, or this could indicate a possible fraudulent attempt. Request details: ' . print_r( $_GET, true ), 'error' );
 				$redirect = wc_get_checkout_url();
 			}
 		}
@@ -522,9 +532,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 
 		$response = wp_safe_remote_get( $this->endpoint . '/api/messages/config/token', $args );
 
-		if ( $this->logging_enabled() ) {
-			$this->log( 'IPN Verification Response: ' . print_r( $response, true ) );
-		}
+		$this->log( 'IPN Verification Response: ' . print_r( $response, true ) );
 
 		$data = wp_remote_retrieve_body( $response );
 
@@ -559,9 +567,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 		$message_code    = (int) $message_content[ 'EventTypeId' ];
 		$event_data      = (array) $message_content[ 'EventData' ];
 
-		if ( $this->logging_enabled() ) {
-			$this->log( 'IPN Received: ' . print_r( $message_content, true ) );
-		}
+		$this->log( 'IPN Received: ' . print_r( $message_content, true ) );
 
 		if ( self::IPN_CODE_TRANSACTION_CREATED === $message_code ) {
 
@@ -570,25 +576,18 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 			$order    = wc_get_order( $order_id );
 
 			if ( ! $order ) {
-				if ( $this->logging_enabled() ) {
-					$this->log( 'Order not found.', 'error' );
-				}
-				return;
-			}
-
-			// Check order status.
-			if ( ! $order->has_status( array( 'pending', 'on-hold' ) ) ) {
+				$this->log( 'Order not found.', 'error' );
 				return;
 			}
 
 			// Validate the event.
-			$ipn_valid = $this->validate_ipn( $message_content );
-
-			if ( $ipn_valid ) {
+			if ( $this->validate_ipn( $message_content ) ) {
 				if ( array_key_exists( $event_data[ 'TransactionTypeId' ], $this->ipn_transaction_types[ $message_code ] ) ) {
 					$order->add_order_note( sprintf( __( 'Viva Wallet payment notification received: &quot;%1$s&quot; transaction with ID %2$s successful, paid by %3$s.', 'woocommerce-gateway-viva' ), $this->ipn_transaction_types[ $message_code ][ $event_data[ 'TransactionTypeId' ] ], $event_data[ 'TransactionId' ], $event_data[ 'Email' ] ) );
 					// Mark order as completed.
-					$order->payment_complete( $event_data[ 'TransactionId' ] );
+					if ( ! $order->has_status( array( 'complete', 'processing' ) ) ) {
+						$order->payment_complete( $event_data[ 'TransactionId' ] );
+					}
 				} else {
 					$order->add_order_note( sprintf( __( 'Viva Wallet payment notification received: Unrecognized &quot;%1$s&quot; transaction with ID %2$s, paid by %3$s.', 'woocommerce-gateway-viva' ), $event_data[ 'TransactionTypeId' ], $event_data[ 'TransactionId' ], $event_data[ 'Email' ] ) );
 				}
@@ -603,16 +602,12 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 			$order    = $order_id ? wc_get_order( $order_id ) : $this->get_order_id_from_viva_code( $event_data[ 'OrderCode' ] );
 
 			if ( ! $order ) {
-				if ( $this->logging_enabled() ) {
-					$this->log( 'Order not found.' );
-				}
+				$this->log( 'Order not found.', 'error' );
 				return;
 			}
 
 			// Validate the event.
-			$ipn_valid = $this->validate_ipn( $message_content );
-
-			if ( $ipn_valid ) {
+			if ( $this->validate_ipn( $message_content ) ) {
 				// Only handle full refunds, not partial.
 				if ( $order->get_total() == ( $event_data[ 'Amount' ] * -1 ) ) {
 					$order->add_order_note( sprintf( __( 'Viva Wallet refund notification received: &quot;%1$s&quot; transaction with ID %2$s.', 'woocommerce-gateway-viva' ), $this->ipn_transaction_types[ $message_code ][ $event_data[ 'TransactionTypeId' ] ], $event_data[ 'TransactionId' ] ) );
@@ -628,24 +623,17 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 	}
 
 	/**
-	 * Validate that the received IPN mesage was genuine by making a Viva API call to double check the transaction ID and status.
+	 * Sends a request to validate the existence and status of a transaction.
 	 *
-	 * @param  array  $message
+	 * @param  string  $id
+	 * @param  string  $status
+	 * @return boolean|WP_Error
 	 */
-	private function validate_ipn( $message ) {
+	private function validate_transaction( $id, $status = '' ) {
 
-		$valid                     = false;
-		$event_data                = (array) $message[ 'EventData' ];
-		$transaction_id            = isset( $event_data[ 'TransactionId' ] ) ? $event_data[ 'TransactionId' ] : false;
-		$ipn_transaction_status_id = isset( $event_data[ 'StatusId' ] ) ?  $event_data[ 'StatusId' ] : false;
+		$status = $status ? $status : $this->transaction_status_ids[ 'completed' ];
 
-		if ( ! $transaction_id || ! $ipn_transaction_status_id ) {
-			return $valid;
-		}
-
-		if ( $this->logging_enabled() ) {
-			$this->log( 'Validating IPN - checking status of Transaction ID: ' . $transaction_id . "..." );
-		}
+		$this->log( 'Validating transaction with ID ' . $id . '...' );
 
 		$args = array(
 			'headers' => array(
@@ -653,34 +641,68 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 			),
 		);
 
-		$response = wp_safe_remote_get( $this->endpoint . '/api/transactions/' . $transaction_id, $args );
+		$response = wp_safe_remote_get( $this->endpoint . '/api/transactions/' . $id, $args );
 
-		if ( $this->logging_enabled() ) {
-			$this->log( 'Viva response: ' . print_r( $response, true ) );
-		}
+		$this->log( 'Viva response: ' . print_r( $response, true ) );
 
-		$data       = (array) json_decode( wp_remote_retrieve_body( $response ) );
-		$error_code = $data[ 'ErrorCode' ];
+		if ( is_wp_error( $response ) ) {
 
-		if ( isset( $data[ 'ErrorCode' ] ) && 0 === absint( $data[ 'ErrorCode' ] ) && isset( $data[ 'Transactions' ] ) ) {
+			$this->log( 'Transaction validation failed: ' . $response->get_error_message(), 'error' );
+			return new WP_Error( 'error', $response->get_error_message() );
 
-			$transaction_data      = (array) current( $data[ 'Transactions' ] );
-			$transaction_status_id = isset( $transaction_data[ 'StatusId' ] ) ? $transaction_data[ 'StatusId' ] : false;
+		} else {
 
-			if ( $ipn_transaction_status_id === $transaction_status_id ) {
-				$valid = true;
-			}
-		}
+			$data = (array) json_decode( wp_remote_retrieve_body( $response ) );
 
-		if ( $this->logging_enabled() ) {
-			if ( $valid ) {
-				$this->log( 'IPN is valid. Transaction existence and status confirmed.' );
+			if ( isset( $data[ 'ErrorCode' ] ) && 0 === absint( $data[ 'ErrorCode' ] ) && isset( $data[ 'Transactions' ] ) ) {
+
+				$transaction_data      = (array) current( $data[ 'Transactions' ] );
+				$transaction_status_id = isset( $transaction_data[ 'StatusId' ] ) ? $transaction_data[ 'StatusId' ] : false;
+
+				if ( $status === $transaction_status_id ) {
+					$this->log( 'Transaction validated.' );
+					return true;
+				} else {
+					$this->log( 'Transaction status mismatch!', 'error' );
+				}
+
 			} else {
-				$this->log( sprintf( 'IPN Validation failed (Transaction Status ID: %s, expected %s ).', $transaction_status_id ? $transaction_status_id : 'unknown', $ipn_transaction_status_id ) );
+				$this->log( 'Transaction not found.', 'error' );
 			}
 		}
 
-		return $valid;
+		return false;
+	}
+
+	/**
+	 * Validate that the received IPN mesage was genuine by making a Viva API call to double check the transaction ID and status.
+	 *
+	 * @param  array  $message
+	 */
+	private function validate_ipn( $message ) {
+
+		$event_data                = (array) $message[ 'EventData' ];
+		$transaction_id            = isset( $event_data[ 'TransactionId' ] ) ? $event_data[ 'TransactionId' ] : '';
+		$ipn_transaction_status_id = isset( $event_data[ 'StatusId' ] ) ?  $event_data[ 'StatusId' ] : '';
+
+		if ( ! $transaction_id || ! $ipn_transaction_status_id ) {
+			$this->log( 'Invalid IPN event data.', 'error' );
+			return false;
+		}
+
+		$this->log( 'Validating IPN - checking transaction with ID ' . $transaction_id . ' and status "' . $ipn_transaction_status_id . '"...' );
+
+		// Validate transaction existence and status.
+		$is_valid = $this->validate_transaction( $transaction_id, $ipn_transaction_status_id );
+
+		if ( ! is_wp_error( $is_valid ) && $is_valid ) {
+			$this->log( 'IPN Validation successful.' );
+		} else {
+			$is_valid = false;
+			$this->log( 'IPN Validation failed', 'error' );
+		}
+
+		return $is_valid;
 	}
 
 	/**
@@ -749,7 +771,9 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 	 * @param string $level
 	 */
 	public function log( $message, $level = 'info' ) {
-		WC_Viva_Core_Compatibility::log( $message, $level, $this->get_log_file_name() );
+		if ( $this->logging_enabled() ) {
+			WC_Viva_Core_Compatibility::log( $message, $level, $this->get_log_file_name() );
+		}
 	}
 
 	/**
