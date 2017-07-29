@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WooCommerce Viva Wallet Gateway
  * Plugin URI: http://somewherewarm.gr/
- * Description: Adds the Viva Wallet payment gateway to your WooCommerce website. A secure, clean implementation of the [Redirect Checkout](https://github.com/VivaPayments/API/wiki/Redirect-Checkout) method.
+ * Description: Adds the Viva Wallet payment gateway to your WooCommerce website. A secure, clean implementation of the Redirect Checkout method.
  * Version: 1.0.0
  *
  * Author: SomewhereWarm

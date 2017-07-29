@@ -9,12 +9,13 @@ This plugin implements the [Redirect Checkout](https://github.com/VivaPayments/A
 
 Yes, it's free. But here's what you should _really_ care about:
 
-* The codebase adheres to the [WordPress Coding Standards](https://codex.wordpress.org/WordPress_Coding_Standards) and follows WooCommerce best practices and conventions.
+* The code adheres to the [WordPress Coding Standards](https://codex.wordpress.org/WordPress_Coding_Standards) and follows WooCommerce best practices and conventions.
 * The status of a successful transaction is verified. The gateway does not blindly trust the return url being called, or the content of a Webhook notification.
 * Viva Wallet **Webhooks** are supported. If you [configure](#3-set-up-viva-wallet-webhooks) Webhook settings correctly, the status of an order will automatically change when a refund is issued from the **My Sales > Sales** page of your Viva Wallet account panel.
 * The implementation supports the WooCommerce Refunds API. This means that you can [issue partial or full refunds](https://docs.woocommerce.com/document/woocommerce-refunds/) directly from within an order, without leaving your WooCommerce store.
+* All gateway activity is logged.
 
-In short, this is probably the most complete WooCommerce Viva Wallet Gateway implementation to date.
+In short, this is the most complete WooCommerce Viva Wallet Gateway implementation to date.
 
 
 ### What's the Catch?
