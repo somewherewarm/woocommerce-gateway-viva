@@ -1,20 +1,23 @@
 <?php
 /**
  * Plugin Name: WooCommerce Viva Wallet Gateway
- * Plugin URI: http://somewherewarm.gr/
+ * Plugin URI: https://somewherewarm.gr/
  * Description: Adds the Viva Wallet payment gateway to your WooCommerce website. A secure, clean implementation of the Redirect Checkout method.
- * Version: 1.0.0
+ * Version: 1.0.1
  *
  * Author: SomewhereWarm
- * Author URI: http://somewherewarm.gr/
+ * Author URI: https://somewherewarm.gr/
  *
  * Text Domain: woocommerce-gateway-viva
  * Domain Path: /i18n/languages/
  *
- * Requires at least: 4.2
- * Tested up to: 4.8
+ * Requires at least: 4.1
+ * Tested up to: 5.1
  *
- * Copyright: © 2009-2017 SomewhereWarm SMPC.
+ * WC requires at least: 2.3
+ * WC tested up to: 3.6
+ *
+ * Copyright: © 2017-2019 SomewhereWarm SMPC.
  * License: GNU General Public License v3.0
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
  */
@@ -24,34 +27,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/*
- * Required functions.
- */
-if ( ! function_exists( 'woothemes_queue_update' ) ) {
-	require_once( 'woo-includes/woo-functions.php' );
-}
-
-/*
- * Plugin updates.
- */
-woothemes_queue_update( plugin_basename( __FILE__ ), '', '' );
-
-/*
- * WC active check.
- */
-if ( ! is_woocommerce_active() ) {
-	return;
-}
-
 /**
  * WC Viva Wallet gateway plugin class.
  *
- * @class WC_Viva
+ * @class    WC_Viva
+ * @version  1.0.1
  */
 class WC_Viva {
 
 	/* Plugin version. */
-	const VERSION = '1.0.0';
+	const VERSION = '1.0.1';
 
 	/* Required WC version. */
 	const REQ_WC_VERSION = '2.3.0';
@@ -65,7 +50,17 @@ class WC_Viva {
 	public static function init() {
 
 		// Viva Wallet gateway class.
-		add_action( 'plugins_loaded', array( __CLASS__, 'includes' ), 0 );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load' ), 0 );
+	}
+
+	/**
+	 * Plugin loader.
+	 */
+	public static function load() {
+
+		if ( ! function_exists( 'WC' ) ) {
+			return;
+		}
 
 		// Plugin localization.
 		add_action( 'init', array( __CLASS__, 'load_translations' ) );
@@ -73,18 +68,8 @@ class WC_Viva {
 		// Make the Viva Wallet gateway available to WC.
 		add_filter( 'woocommerce_payment_gateways', array( __CLASS__, 'add_gateway' ) );
 
-		// Clean up.
-		register_deactivation_hook( __FILE__, array( __CLASS__, 'deactivate_plugin' ) );
-	}
-
-	/**
-	 * Add the Viva Wallet gateway to the list of available gateways.
-	 *
-	 * @param array
-	 */
-	public static function add_gateway( $gateways ) {
-		$gateways[] = 'WC_Gateway_Viva';
-		return $gateways;
+		// Indclude files.
+		self::includes();
 	}
 
 	/**
@@ -110,6 +95,16 @@ class WC_Viva {
 	}
 
 	/**
+	 * Add the Viva Wallet gateway to the list of available gateways.
+	 *
+	 * @param array
+	 */
+	public static function add_gateway( $gateways ) {
+		$gateways[] = 'WC_Gateway_Viva';
+		return $gateways;
+	}
+
+	/**
 	 * Load domain translations.
 	 */
 	public static function load_translations() {
@@ -123,13 +118,6 @@ class WC_Viva {
 	 */
 	public static function plugin_url() {
 		return untrailingslashit( plugins_url( '/', __FILE__ ) );
-	}
-
-	/**
-	 * Delete plugin options on deactivation.
-	 */
-	public static function deactivate_plugin() {
-		delete_option( 'wc_viva_notices_status' );
 	}
 }
 
