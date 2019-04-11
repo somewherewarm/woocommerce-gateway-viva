@@ -15,7 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * WC_Gateway_Viva class.
  *
- * @class WC_Gateway_Viva
+ * @class    WC_Gateway_Viva
+ * @version  1.0.1
  */
 class WC_Gateway_Viva extends WC_Payment_Gateway {
 
@@ -491,15 +492,20 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 
 			if ( $order ) {
 
-				// If the transaction is valid and payment cleared, mark order as complete now.
-				if ( $transaction_id && $this->validate_transaction( $transaction_id ) ) {
-
-					$order->payment_complete( $transaction_id );
-					$this->log( 'Payment for Order #' . WC_Viva_Core_Compatibility::get_order_id( $order ) . ' confirmed. Completing order...' );
-
-				// Otherwise, wait for IPN.
+				if ( $order->has_status( function_exists( 'wc_get_is_paid_statuses' ) ? wc_get_is_paid_statuses() : array( 'processing', 'completed' ) ) ) {
+					$this->log( 'Aborting payment for Order #' . WC_Viva_Core_Compatibility::get_order_id( $order ) . '. The order is already complete.' );
 				} else {
-					$this->log( 'Processing payment for Order #' . WC_Viva_Core_Compatibility::get_order_id( $order ) . '. Waiting for IPN to complete order. Request details: ' . print_r( $_GET, true ) );
+
+					// If the transaction is valid and payment cleared, mark order as complete now.
+					if ( $transaction_id && $this->validate_transaction( $transaction_id ) ) {
+
+						$order->payment_complete( $transaction_id );
+						$this->log( 'Payment for Order #' . WC_Viva_Core_Compatibility::get_order_id( $order ) . ' confirmed. Completing order...' );
+
+					// Otherwise, wait for IPN.
+					} else {
+						$this->log( 'Processing payment for Order #' . WC_Viva_Core_Compatibility::get_order_id( $order ) . '. Waiting for IPN to complete order. Request details: ' . print_r( $_GET, true ) );
+					}
 				}
 
 				$redirect = $this->get_return_url( $order );
@@ -602,7 +608,7 @@ class WC_Gateway_Viva extends WC_Payment_Gateway {
 				if ( array_key_exists( $event_data[ 'TransactionTypeId' ], $this->ipn_transaction_types[ $message_code ] ) ) {
 					$order->add_order_note( sprintf( __( 'Viva Wallet payment notification received: &quot;%1$s&quot; transaction with ID %2$s successful, paid by %3$s.', 'woocommerce-gateway-viva' ), $this->ipn_transaction_types[ $message_code ][ $event_data[ 'TransactionTypeId' ] ], $event_data[ 'TransactionId' ], $event_data[ 'Email' ] ) );
 					// Mark order as completed.
-					if ( ! $order->has_status( array( 'complete', 'processing' ) ) ) {
+					if ( ! $order->has_status( function_exists( 'wc_get_is_paid_statuses' ) ? wc_get_is_paid_statuses() : array( 'processing', 'completed' ) ) ) {
 						$order->payment_complete( $event_data[ 'TransactionId' ] );
 					}
 				} else {

@@ -1,4 +1,8 @@
 *** WooCommerce Viva Wallet Payment Gateway ***
 
+2019.04.11 - version 1.0.1
+ * Fix - Prevent order from completing again if webhook confirmation hits WooCommerce first.
+ * Fix - Prevent webhook from completing orders with a 'completed' status.
+
 2016.02.15 - version 1.0.0
  * Initial Release.
