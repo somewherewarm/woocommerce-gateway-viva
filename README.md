@@ -1,5 +1,9 @@
 # WooCommerce Viva Wallet Payment Gateway
 
+**Important**: Development of this gateway has been suspended as Viva is now maintaining an official gateway for WooCommerce. Please migrate to the [official plugin](https://wordpress.org/plugins/vivawallet-woocommerce-gateway/).
+
+### What's this?
+
 The WooCommerce Viva Wallet Payment Gateway provides a PCI compliant payment processing integration between WooCommerce and [Viva Wallet](https://www.vivawallet.com). Payments take place securely off-site on Viva's servers, providing an easy and secure payment integration.
 
 This plugin implements the [Redirect Checkout](https://github.com/VivaPayments/API/wiki/Redirect-Checkout) method which sends the customer to the Viva Wallet website to enter payment details. This alleviates the security burden of PCI compliance since payment data is handled on Viva Wallet servers. Note that since your site never handles payment data, an SSL certificate is not needed.
